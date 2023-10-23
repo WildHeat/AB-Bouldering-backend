@@ -12,7 +12,11 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "USER_ID_GEN")
 	@SequenceGenerator(name = "USER_ID_GEN", sequenceName = "user_id_seq", allocationSize = 1, initialValue = 10)
-	private long id;
+	private long id;	
+	@NotBlank(message = "First name can not be blank")
+	private String firstName;
+	@NotBlank(message = "Last name can not be blank")
+	private String lastName;
 	@NotBlank(message = "Email can not be blank")
 	private String email;
 	@NotBlank(message = "Password can not be blank")

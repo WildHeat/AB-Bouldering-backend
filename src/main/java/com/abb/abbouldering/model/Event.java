@@ -1,12 +1,15 @@
 package com.abb.abbouldering.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 
 @Entity
@@ -21,10 +24,15 @@ public class Event {
 	private String smallDescription;
 	@NotBlank
 	private String description;
+	@Min(0)
 	private double price;
+	@Min(1)
+	@Max(100)
 	private int maxSize;
 	private LocalDate date;
-
+	private User organiser;  
+	private ArrayList<User> climbers;
+	
 	public long getId() {
 		return id;
 	}
@@ -79,6 +87,22 @@ public class Event {
 
 	public void setDate(LocalDate date) {
 		this.date = date;
+	}
+
+	public User getOrganiser() {
+		return organiser;
+	}
+
+	public void setOrganiser(User organiser) {
+		this.organiser = organiser;
+	}
+
+	public ArrayList<User> getClimbers() {
+		return climbers;
+	}
+
+	public void setClimbers(ArrayList<User> climbers) {
+		this.climbers = climbers;
 	}
 
 }
