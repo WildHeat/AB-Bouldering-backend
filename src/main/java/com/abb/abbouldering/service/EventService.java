@@ -17,8 +17,6 @@ public class EventService {
 	@Autowired
 	private EventRepository eventRepo;
 	
-	//CRUD
-	
 	public Event addEvent(Event event) throws EventAlreadyExists {
 		if(eventRepo.existsById(event.getId())) {
 			throw new EventAlreadyExists();
