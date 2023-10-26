@@ -3,10 +3,13 @@ package com.abb.abbouldering.model;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -30,7 +33,9 @@ public class Event {
 	@Max(100)
 	private int maxSize;
 	private LocalDate date;
+	@OneToOne(optional = false)
 	private User organiser;  
+	@OneToMany(cascade = CascadeType.ALL)
 	private ArrayList<User> climbers;
 	
 	public long getId() {
@@ -89,20 +94,20 @@ public class Event {
 		this.date = date;
 	}
 
-	public User getOrganiser() {
-		return organiser;
-	}
-
-	public void setOrganiser(User organiser) {
-		this.organiser = organiser;
-	}
-
 	public ArrayList<User> getClimbers() {
 		return climbers;
 	}
 
 	public void setClimbers(ArrayList<User> climbers) {
 		this.climbers = climbers;
+	}
+
+	public User getOrganiser() {
+		return organiser;
+	}
+
+	public void setOrganiser(User organiser) {
+		this.organiser = organiser;
 	}
 
 }
