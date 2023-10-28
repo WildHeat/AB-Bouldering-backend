@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.abb.abbouldering.exception.InvalidCredentialsException;
-import com.abb.abbouldering.exception.UserAlreadyExists;
-import com.abb.abbouldering.exception.UserDoesNotExists;
+import com.abb.abbouldering.exception.UserAlreadyExistsException;
+import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.repository.UserRepository;
 
@@ -21,11 +21,11 @@ public class UserService {
 	@Autowired
 	private UserRepository userRepo;
 
-	public User addUser(User user) throws UserAlreadyExists, InvalidCredentialsException {
+	public User addUser(User user) throws UserAlreadyExistsException, InvalidCredentialsException {
 		Optional<User> optionalUser = userRepo.findByEmailIgnoreCase(user.getEmail());
 
 		if (optionalUser.isPresent()) {
-			throw new UserAlreadyExists();
+			throw new UserAlreadyExistsException();
 		}
 
 		if (!passwordPattern.matcher(user.getPassword()).matches()) {
@@ -35,18 +35,18 @@ public class UserService {
 		return userRepo.save(user);
 	}
 
-	public void deleteUser(long id) throws UserDoesNotExists {
+	public void deleteUser(long id) throws UserDoesNotExistException {
 		if (!userRepo.existsById(id)) {
-			throw new UserDoesNotExists();
+			throw new UserDoesNotExistException();
 		}
 		userRepo.deleteById(id);
 	}
 	
-	public User editUser(User user) throws UserDoesNotExists, InvalidCredentialsException {
+	public User editUser(User user) throws UserDoesNotExistException, InvalidCredentialsException {
 		Optional<User> optionalUser = userRepo.findById(user.getId());
 		
 		if(optionalUser.isEmpty()) {
-			throw new UserDoesNotExists();
+			throw new UserDoesNotExistException();
 		}
 		
 		if (!passwordPattern.matcher(user.getPassword()).matches()) {
@@ -56,9 +56,9 @@ public class UserService {
 		return userRepo.save(user);
 	}
 	
-	public User getUserById(long id) throws UserDoesNotExists {
+	public User getUserById(long id) throws UserDoesNotExistException {
 		Optional<User> optionalUser = userRepo.findById(id);
-		if(optionalUser.isEmpty()) throw new UserDoesNotExists();
+		if(optionalUser.isEmpty()) throw new UserDoesNotExistException();
 		return optionalUser.get();
 	}
 

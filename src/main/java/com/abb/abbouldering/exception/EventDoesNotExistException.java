@@ -1,10 +1,10 @@
 package com.abb.abbouldering.exception;
 
-public class EventDoesNotExist extends Exception {
+public class EventDoesNotExistException extends Exception {
 
 	private static final long serialVersionUID = -4103878150657738487L;
 
-	public EventDoesNotExist() {
+	public EventDoesNotExistException() {
 		super("Event doesn't exist");
 	}
 	

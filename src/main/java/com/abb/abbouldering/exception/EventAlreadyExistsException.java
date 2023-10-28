@@ -1,10 +1,10 @@
 package com.abb.abbouldering.exception;
 
-public class EventAlreadyExists extends Exception {
+public class EventAlreadyExistsException extends Exception {
 
 	private static final long serialVersionUID = -6513013692964148313L;
 
-	public EventAlreadyExists() {
+	public EventAlreadyExistsException() {
 		super("The event already exists");
 	}
 }

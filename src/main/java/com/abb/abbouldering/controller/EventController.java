@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.abb.abbouldering.exception.EventAlreadyExists;
-import com.abb.abbouldering.exception.EventDoesNotExist;
+import com.abb.abbouldering.exception.EventAlreadyExistsException;
+import com.abb.abbouldering.exception.EventDoesNotExistException;
 import com.abb.abbouldering.model.Event;
 import com.abb.abbouldering.service.EventService;
 
@@ -23,22 +23,22 @@ public class EventController {
 	private EventService eventService;
 
 	@PostMapping
-	public ResponseEntity<Event> handleAddEvent(@RequestBody Event event) throws EventAlreadyExists{
+	public ResponseEntity<Event> handleAddEvent(@RequestBody Event event) throws EventAlreadyExistsException{
 		return ResponseEntity.status(HttpStatus.CREATED).body(eventService.addEvent(event));
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<Event> handleGetEventById(@PathVariable long id) throws EventDoesNotExist{
+	public ResponseEntity<Event> handleGetEventById(@PathVariable long id) throws EventDoesNotExistException{
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventById(id));
 	}
 	
 	@PutMapping()
-	public ResponseEntity<Event> handleEditEvent(@RequestBody Event event) throws EventDoesNotExist{
+	public ResponseEntity<Event> handleEditEvent(@RequestBody Event event) throws EventDoesNotExistException{
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.updateEvent(event));
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<Event> handleDeleteEvent(@PathVariable long id) throws EventDoesNotExist{
+	public ResponseEntity<Event> handleDeleteEvent(@PathVariable long id) throws EventDoesNotExistException{
 		eventService.deleteEventById(id);
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
