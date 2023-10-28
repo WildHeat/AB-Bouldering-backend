@@ -1,5 +1,7 @@
 package com.abb.abbouldering.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,11 @@ public class EventController {
 	@Autowired
 	private EventService eventService;
 
+	@GetMapping
+	public ResponseEntity<List<Event>> handleGetAllEvents() {
+		return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEvents());
+	}
+
 	@PostMapping
 	public ResponseEntity<Event> handleAddEvent(@RequestBody Event event) throws EventAlreadyExistsException{
 		return ResponseEntity.status(HttpStatus.CREATED).body(eventService.addEvent(event));
@@ -32,7 +39,7 @@ public class EventController {
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventById(id));
 	}
 	
-	@PutMapping()
+	@PutMapping
 	public ResponseEntity<Event> handleEditEvent(@RequestBody Event event) throws EventDoesNotExistException{
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.updateEvent(event));
 	}
@@ -42,4 +49,5 @@ public class EventController {
 		eventService.deleteEventById(id);
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
+	
 }
