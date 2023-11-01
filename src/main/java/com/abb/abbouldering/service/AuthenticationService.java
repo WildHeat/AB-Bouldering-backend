@@ -42,7 +42,6 @@ public class AuthenticationService {
 				.role(Role.USER)
 				.build();
 		userRepo.save(user);
-		System.out.println("New User" + user);
 		String generatedJwt = jwtService.generateToken(user);
 		return new AuthenticationResponse(generatedJwt);
 	}

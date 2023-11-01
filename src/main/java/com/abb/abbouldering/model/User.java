@@ -19,11 +19,11 @@ import jakarta.validation.constraints.NotBlank;
 
 @Entity()
 @Table(name = "users")
-public class User implements UserDetails{
+public class User implements UserDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "USER_ID_GEN")
 	@SequenceGenerator(name = "USER_ID_GEN", sequenceName = "user_id_seq", allocationSize = 1, initialValue = 10)
-	private long id;	
+	private long id;
 	@NotBlank(message = "First name can not be blank")
 	private String firstName;
 	@NotBlank(message = "Last name can not be blank")
@@ -32,12 +32,12 @@ public class User implements UserDetails{
 	private String email;
 	@NotBlank(message = "Password can not be blank")
 	private String password;
+
 	@NotBlank(message = "Role must not be blank")
-	
-	public User() {}
-	
-	
-	
+
+	public User() {
+	}
+
 	public User(@NotBlank(message = "First name can not be blank") String firstName,
 			@NotBlank(message = "Last name can not be blank") String lastName,
 			@NotBlank(message = "Email can not be blank") String email,
@@ -49,8 +49,6 @@ public class User implements UserDetails{
 		this.password = password;
 		this.role = role;
 	}
-
-
 
 	@Enumerated(EnumType.STRING)
 	private Role role;
@@ -136,6 +134,12 @@ public class User implements UserDetails{
 
 	public void setRole(Role role) {
 		this.role = role;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
+				+ ", password=" + password + ", role=" + role + "]";
 	}
 
 }
