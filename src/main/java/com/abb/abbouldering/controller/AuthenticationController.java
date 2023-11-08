@@ -1,6 +1,7 @@
 package com.abb.abbouldering.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,7 @@ public class AuthenticationController {
 
 	@PostMapping("/register")
 	public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request){
-		return ResponseEntity.ok(authService.register(request));
+		return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
 	}
 	
 	@PostMapping("/authenticate")
