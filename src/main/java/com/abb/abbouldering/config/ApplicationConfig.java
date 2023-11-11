@@ -46,33 +46,13 @@ public class ApplicationConfig {
 		return config.getAuthenticationManager();
 	}
 
-//	@Bean 
-//	CorsConfigurationSource corsConfigureationSource() {
-//		CorsConfiguration config = new CorsConfiguration();
-//		config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-//		config.setAllowedMethods(Arrays.asList("GET", "POST"));
-//		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//		source.registerCorsConfiguration("/**", config);
-//		return source;
-//	}
-	
-	@Bean
-	CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("*"));
-		configuration.setAllowedMethods(Arrays.asList("GET","POST"));
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-	}
-
 	@Bean
 	WebMvcConfigurer corsConfigurer() {
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/**").allowedOrigins("http://localhost:3000") // Allow all origins
-						.allowedMethods("*"); // Allow all HTTP methods
+				registry.addMapping("/**").allowedOrigins("http://localhost:3000")
+						.allowedMethods("*"); 
 			}
 		};
 	}

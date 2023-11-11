@@ -35,8 +35,7 @@ public class User implements UserDetails {
 
 	@NotBlank(message = "Role must not be blank")
 
-	public User() {
-	}
+	public User() {}
 
 	public User(@NotBlank(message = "First name can not be blank") String firstName,
 			@NotBlank(message = "Last name can not be blank") String lastName,
@@ -100,31 +99,26 @@ public class User implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		// TODO Auto-generated method stub
 		return email;
 	}
 
 	@Override
 	public boolean isAccountNonExpired() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	public boolean isAccountNonLocked() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	public boolean isCredentialsNonExpired() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		// TODO Auto-generated method stub
 		return true;
 	}
 
