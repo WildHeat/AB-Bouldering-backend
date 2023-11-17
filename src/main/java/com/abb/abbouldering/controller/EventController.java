@@ -26,7 +26,7 @@ public class EventController {
 	@Autowired
 	private EventService eventService;
 
-	@GetMapping
+	@GetMapping("/all")
 	public ResponseEntity<List<Event>> handleGetAllEvents() {
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEvents());
 	}
