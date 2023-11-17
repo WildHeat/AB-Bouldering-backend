@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
@@ -33,7 +34,7 @@ public class Event {
 	@Max(100)
 	private int maxSize;
 	private LocalDate date;
-	@OneToOne(optional = false)
+	@ManyToOne(optional = false)
 	private User organiser;  
 	@OneToMany(cascade = CascadeType.ALL)
 	private ArrayList<User> climbers;
