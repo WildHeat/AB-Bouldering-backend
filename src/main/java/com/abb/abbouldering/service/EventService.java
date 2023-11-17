@@ -1,11 +1,13 @@
 package com.abb.abbouldering.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.abb.abbouldering.dto.EventDto;
 import com.abb.abbouldering.exception.EventAlreadyExistsException;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
 import com.abb.abbouldering.model.Event;
@@ -42,8 +44,12 @@ public class EventService {
 		return optionalEvent.get();
 	}
 	
-	public List<Event> getAllEvents(){
-		return eventRepo.findAll();
+	public List<EventDto> getAllEvents(){
+		ArrayList<EventDto> eventsDto = new ArrayList<EventDto>();
+		for(Event event : eventRepo.findAll()) {
+			eventsDto.add(new EventDto(event));
+		}
+		return eventsDto;
 	}
 	
 }

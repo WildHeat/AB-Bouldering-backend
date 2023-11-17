@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.abb.abbouldering.dto.EventDto;
 import com.abb.abbouldering.exception.EventAlreadyExistsException;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
 import com.abb.abbouldering.model.Event;
@@ -27,7 +28,7 @@ public class EventController {
 	private EventService eventService;
 
 	@GetMapping("/all")
-	public ResponseEntity<List<Event>> handleGetAllEvents() {
+	public ResponseEntity<List<EventDto>> handleGetAllEvents() {
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEvents());
 	}
 
