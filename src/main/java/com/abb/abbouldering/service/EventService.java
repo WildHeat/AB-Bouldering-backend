@@ -37,11 +37,11 @@ public class EventService {
 		return eventRepo.save(event);
 	}
 	
-	public Event getEventById(long id) throws EventDoesNotExistException{
+	public EventDto getEventById(long id) throws EventDoesNotExistException{
 		Optional<Event> optionalEvent = eventRepo.findById(id);
 		
 		if(optionalEvent.isEmpty()) throw new EventDoesNotExistException();
-		return optionalEvent.get();
+		return new EventDto(optionalEvent.get());
 	}
 	
 	public List<EventDto> getAllEvents(){

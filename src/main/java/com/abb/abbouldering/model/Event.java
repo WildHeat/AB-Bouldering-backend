@@ -2,6 +2,7 @@ package com.abb.abbouldering.model;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -37,7 +38,7 @@ public class Event {
 	@ManyToOne(optional = false)
 	private User organiser;  
 	@OneToMany(cascade = CascadeType.ALL)
-	private ArrayList<User> climbers;
+	private List<User> climbers;
 	
 	public long getId() {
 		return id;
@@ -95,11 +96,11 @@ public class Event {
 		this.date = date;
 	}
 
-	public ArrayList<User> getClimbers() {
+	public List<User> getClimbers() {
 		return climbers;
 	}
 
-	public void setClimbers(ArrayList<User> climbers) {
+	public void setClimbers(List<User> climbers) {
 		this.climbers = climbers;
 	}
 

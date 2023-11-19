@@ -15,13 +15,13 @@ public class EventDto {
 	private double price;
 	private int maxSize;
 	private LocalDate date;
-	private User organiser;
+	private String organiser;
 	private int spacesLeft;
 
 	public EventDto() {
 	}
 
-	public EventDto(Event event){
+	public EventDto(Event event) {
 		this.id = event.getId();
 		this.title = event.getTitle();
 		this.smallDescription = event.getSmallDescription();
@@ -29,10 +29,9 @@ public class EventDto {
 		this.price = event.getPrice();
 		this.maxSize = event.getMaxSize();
 		this.date = event.getDate();
-		this.organiser = event.getOrganiser();
+		this.organiser = event.getOrganiser().getFirstName() + event.getOrganiser().getLastName();
 		this.spacesLeft = maxSize - event.getClimbers().size();
 	}
-	
 
 	public long getId() {
 		return id;
@@ -90,20 +89,20 @@ public class EventDto {
 		this.date = date;
 	}
 
-	public User getOrganiser() {
-		return organiser;
-	}
-
-	public void setOrganiser(User organiser) {
-		this.organiser = organiser;
-	}
-
 	public int getSpacesLeft() {
 		return spacesLeft;
 	}
 
 	public void setSpacesLeft(int spacesLeft) {
 		this.spacesLeft = spacesLeft;
+	}
+
+	public String getOrganiser() {
+		return organiser;
+	}
+
+	public void setOrganiser(String organiser) {
+		this.organiser = organiser;
 	}
 
 }

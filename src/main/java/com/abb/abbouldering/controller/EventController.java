@@ -37,8 +37,8 @@ public class EventController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(eventService.addEvent(event));
 	}
 	
-	@GetMapping("/{id}")
-	public ResponseEntity<Event> handleGetEventById(@PathVariable long id) throws EventDoesNotExistException{
+	@GetMapping("/all/{id}")
+	public ResponseEntity<EventDto> handleGetEventById(@PathVariable long id) throws EventDoesNotExistException{
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventById(id));
 	}
 	
