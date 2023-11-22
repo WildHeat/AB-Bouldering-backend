@@ -111,5 +111,9 @@ public class Event {
 	public void setOrganiser(User organiser) {
 		this.organiser = organiser;
 	}
+	
+	public void addUserToEvent(User user) {
+		this.climbers.add(user);
+	}
 
 }

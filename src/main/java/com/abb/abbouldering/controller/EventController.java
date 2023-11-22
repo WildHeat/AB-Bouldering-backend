@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,7 @@ import com.abb.abbouldering.dto.EventDto;
 import com.abb.abbouldering.exception.EventAlreadyExistsException;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
 import com.abb.abbouldering.model.Event;
+import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.service.EventService;
 
 @RestController
@@ -51,6 +53,12 @@ public class EventController {
 	public ResponseEntity<Event> handleDeleteEvent(@PathVariable long id) throws EventDoesNotExistException{
 		eventService.deleteEventById(id);
 		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+	
+	@GetMapping("/{id}/add")
+	public ResponseEntity<EventDto> addUserToEvent(@AuthenticationPrincipal User user, @PathVariable long id) throws EventDoesNotExistException{
+		return ResponseEntity.status(HttpStatus.OK).body(eventService.addUserToEvent(user, id));
+		
 	}
 	
 }

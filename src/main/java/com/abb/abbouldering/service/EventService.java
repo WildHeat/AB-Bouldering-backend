@@ -11,6 +11,7 @@ import com.abb.abbouldering.dto.EventDto;
 import com.abb.abbouldering.exception.EventAlreadyExistsException;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
 import com.abb.abbouldering.model.Event;
+import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.repository.EventRepository;
 
 @Service
@@ -50,6 +51,16 @@ public class EventService {
 			eventsDto.add(new EventDto(event));
 		}
 		return eventsDto;
+	}
+
+	public EventDto addUserToEvent(User user, long id) throws EventDoesNotExistException{
+		Optional<Event> optionalEvent = eventRepo.findById(id);
+		if(optionalEvent.isEmpty()) {
+			throw new EventDoesNotExistException();
+		}
+		Event event = optionalEvent.get();
+		event.addUserToEvent(user);
+		return new EventDto(eventRepo.save(event));
 	}
 	
 }
