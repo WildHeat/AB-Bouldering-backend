@@ -32,10 +32,11 @@ public class User implements UserDetails {
 	private String email;
 	@NotBlank(message = "Password can not be blank")
 	private String password;
+	@Enumerated(EnumType.STRING)
+	private Role role;
 
-	@NotBlank(message = "Role must not be blank")
-
-	public User() {}
+	public User() {
+	}
 
 	public User(@NotBlank(message = "First name can not be blank") String firstName,
 			@NotBlank(message = "Last name can not be blank") String lastName,
@@ -48,9 +49,6 @@ public class User implements UserDetails {
 		this.password = password;
 		this.role = role;
 	}
-
-	@Enumerated(EnumType.STRING)
-	private Role role;
 
 	public long getId() {
 		return id;

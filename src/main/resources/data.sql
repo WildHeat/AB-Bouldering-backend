@@ -1,4 +1,6 @@
-INSERT INTO USERS (id, first_name, last_name, email, password, role) VALUES (1, 'a', 'a', 'a', 'a', 'ADMIN');
+INSERT INTO USERS (id, first_name, last_name, email, password, role) VALUES 
+(1, 'admin', 'a', 'admin', '$2a$10$LAluMcekkx1SJMGJvHPrbeXjqK6fIo2rP6EY/cl3bSVuJcTxiwO.a', 'ADMIN'),
+(2, 'user', 'b', 'user', '$2a$10$LAluMcekkx1SJMGJvHPrbeXjqK6fIo2rP6EY/cl3bSVuJcTxiwO.a', 'USER');
 
 INSERT INTO EVENT (max_size, price, id, organiser_id, description, small_description, title, image_url) VALUES 
 (10, 2, 1, 1, 'big description', 'small ', 'BIG DAY','https://images.pexels.com/photos/5383759/pexels-photo-5383759.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1'),

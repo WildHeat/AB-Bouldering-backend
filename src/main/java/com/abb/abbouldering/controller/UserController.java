@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.abb.abbouldering.dto.UserDto;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.exception.UserAlreadyExistsException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
@@ -27,9 +28,8 @@ public class UserController {
 	private UserService userService; 
 	
 	@PostMapping
-	public ResponseEntity<User> handleAddUser(@RequestBody User user) throws UserAlreadyExistsException, InvalidCredentialsException{
-		return ResponseEntity.status(HttpStatus.CREATED).body(userService.addUser(user));
-		
+	public ResponseEntity<UserDto> handleAddUser(@RequestBody User user) throws UserAlreadyExistsException, InvalidCredentialsException{
+		return ResponseEntity.status(HttpStatus.CREATED).body(new UserDto(userService.addUser(user)));
 	}
 	
 	@DeleteMapping("/{id}")
@@ -39,17 +39,17 @@ public class UserController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<User> handleGetUser(@PathVariable long id) throws UserDoesNotExistException{
-		return ResponseEntity.status(HttpStatus.OK).body(userService.getUserById(id));
+	public ResponseEntity<UserDto> handleGetUser(@PathVariable long id) throws UserDoesNotExistException{
+		return ResponseEntity.status(HttpStatus.OK).body(new UserDto(userService.getUserById(id)));
 	}
 
 	@PutMapping
-	public ResponseEntity<User> handleEditUser(@RequestBody User user) throws UserDoesNotExistException, InvalidCredentialsException{
-		return ResponseEntity.status(HttpStatus.OK).body(userService.editUser(user));
+	public ResponseEntity<UserDto> handleEditUser(@RequestBody User user) throws UserDoesNotExistException, InvalidCredentialsException{
+		return ResponseEntity.status(HttpStatus.OK).body(new UserDto(userService.editUser(user)));
 	}
 	
 	@GetMapping("/get-user")
-	public ResponseEntity<User> get(@AuthenticationPrincipal User user){
-		return ResponseEntity.ok(user);
+	public ResponseEntity<UserDto> get(@AuthenticationPrincipal User user){
+		return ResponseEntity.ok(new UserDto(user));
 	}
 }
