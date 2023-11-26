@@ -39,6 +39,7 @@ public class Event {
 	private User organiser;  
 	@OneToMany(cascade = CascadeType.ALL)
 	private List<User> climbers;
+	private String imageUrl;
 	
 	public long getId() {
 		return id;
@@ -114,6 +115,14 @@ public class Event {
 	
 	public void addUserToEvent(User user) {
 		this.climbers.add(user);
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 }

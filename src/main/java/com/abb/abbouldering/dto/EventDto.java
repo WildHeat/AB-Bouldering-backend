@@ -17,6 +17,7 @@ public class EventDto {
 	private LocalDate date;
 	private String organiser;
 	private int spacesLeft;
+	private String imageUrl;
 
 	public EventDto() {
 	}
@@ -29,8 +30,9 @@ public class EventDto {
 		this.price = event.getPrice();
 		this.maxSize = event.getMaxSize();
 		this.date = event.getDate();
-		this.organiser = event.getOrganiser().getFirstName() + event.getOrganiser().getLastName();
+		this.organiser = event.getOrganiser().getFirstName() + " " + event.getOrganiser().getLastName();
 		this.spacesLeft = maxSize - event.getClimbers().size();
+		this.imageUrl = event.getImageUrl();
 	}
 
 	public long getId() {
@@ -103,6 +105,14 @@ public class EventDto {
 
 	public void setOrganiser(String organiser) {
 		this.organiser = organiser;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 
 }
