@@ -10,70 +10,97 @@ import org.springframework.stereotype.Service;
 import com.abb.abbouldering.dto.EventDto;
 import com.abb.abbouldering.exception.EventAlreadyExistsException;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
+import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEvent;
 import com.abb.abbouldering.model.Event;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.repository.EventRepository;
+import com.abb.abbouldering.repository.UserRepository;
 
 @Service
 public class EventService {
 
 	@Autowired
 	private EventRepository eventRepo;
-	
+
+	@Autowired
+	private UserRepository userRepo;
+
 	public Event addEvent(Event event) throws EventAlreadyExistsException {
-		if(eventRepo.existsById(event.getId())) {
+		if (eventRepo.existsById(event.getId())) {
 			throw new EventAlreadyExistsException();
 		}
 		return eventRepo.save(event);
 	}
-	
+
 	public void deleteEventById(long id) throws EventDoesNotExistException {
-		if(!eventRepo.existsById(id)) throw new EventDoesNotExistException();
-		
+		if (!eventRepo.existsById(id))
+			throw new EventDoesNotExistException();
+
 		eventRepo.deleteById(id);
 	}
-	
-	public Event updateEvent(Event event) throws EventDoesNotExistException {
-		if(eventRepo.existsById(event.getId())) throw new EventDoesNotExistException();
+
+	public Event updateEvent(EventDto eventDto) throws EventDoesNotExistException, UserDoesNotExistException {
+		Optional<Event> optionalEvent = eventRepo.findById(eventDto.getId());
+		if (optionalEvent.isEmpty())
+			throw new EventDoesNotExistException();
+
+		Event event = optionalEvent.get();
+
+		event.setDate(eventDto.getDate());
+		event.setDescription(eventDto.getDescription());
+		event.setImageUrl(eventDto.getImageUrl());
+		event.setMaxSize(eventDto.getMaxSize());
+		event.setPrice(eventDto.getPrice());
+		event.setSmallDescription(eventDto.getSmallDescription());
+		event.setTitle(eventDto.getTitle());
+
+		long organiserId = Long.parseLong(eventDto.getOrganiser().split(":")[0]);
+		Optional<User> optionalOrganiser = userRepo.findById(organiserId);
+		if (optionalOrganiser.isEmpty())
+			throw new UserDoesNotExistException();
+		event.setOrganiser(optionalOrganiser.get());
+
 		return eventRepo.save(event);
 	}
-	
-	public EventDto getEventById(long id) throws EventDoesNotExistException{
+
+	public EventDto getEventById(long id) throws EventDoesNotExistException {
 		Optional<Event> optionalEvent = eventRepo.findById(id);
-		
-		if(optionalEvent.isEmpty()) throw new EventDoesNotExistException();
+
+		if (optionalEvent.isEmpty())
+			throw new EventDoesNotExistException();
 		return new EventDto(optionalEvent.get());
 	}
-	
-	public List<EventDto> getAllEvents(){
+
+	public List<EventDto> getAllEvents() {
 		ArrayList<EventDto> eventsDto = new ArrayList<EventDto>();
-		for(Event event : eventRepo.findAll()) {
+		for (Event event : eventRepo.findAll()) {
 			eventsDto.add(new EventDto(event));
 		}
 		return eventsDto;
 	}
 
-	public EventDto addUserToEvent(User user, long id) throws EventDoesNotExistException, UserIsAlreadySignedUpForEvent{
+	public EventDto addUserToEvent(User user, long id)
+			throws EventDoesNotExistException, UserIsAlreadySignedUpForEvent {
 		Optional<Event> optionalEvent = eventRepo.findById(id);
-		if(optionalEvent.isEmpty()) {
+		if (optionalEvent.isEmpty()) {
 			throw new EventDoesNotExistException();
 		}
 		Event event = optionalEvent.get();
-		if(isUserAlreadyInEvent(user, event)) {
+		if (isUserAlreadyInEvent(user, event)) {
 			throw new UserIsAlreadySignedUpForEvent();
 		}
 		event.addUserToEvent(user);
 		return new EventDto(eventRepo.save(event));
 	}
-	
+
 	private boolean isUserAlreadyInEvent(User user, Event event) {
-		for(User tempUser : event.getClimbers()) {
-			if(user.getId() == tempUser.getId()) {
+		for (User tempUser : event.getClimbers()) {
+			if (user.getId() == tempUser.getId()) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 }

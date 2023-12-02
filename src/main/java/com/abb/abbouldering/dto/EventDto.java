@@ -30,7 +30,7 @@ public class EventDto {
 		this.price = event.getPrice();
 		this.maxSize = event.getMaxSize();
 		this.date = event.getDate();
-		this.organiser = event.getOrganiser().getFirstName() + " " + event.getOrganiser().getLastName();
+		this.organiser = event.getOrganiser().getId() + ":" + event.getOrganiser().getFirstName() + " " + event.getOrganiser().getLastName();
 		this.spacesLeft = maxSize - event.getClimbers().size();
 		this.imageUrl = event.getImageUrl();
 	}

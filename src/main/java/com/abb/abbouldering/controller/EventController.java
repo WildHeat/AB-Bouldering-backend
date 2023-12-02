@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.abb.abbouldering.dto.EventDto;
 import com.abb.abbouldering.exception.EventAlreadyExistsException;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
+import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEvent;
 import com.abb.abbouldering.model.Event;
 import com.abb.abbouldering.model.User;
@@ -46,8 +47,8 @@ public class EventController {
 	}
 	
 	@PutMapping
-	public ResponseEntity<Event> handleEditEvent(@RequestBody Event event) throws EventDoesNotExistException{
-		return ResponseEntity.status(HttpStatus.OK).body(eventService.updateEvent(event));
+	public ResponseEntity<EventDto> handleEditEvent(@RequestBody EventDto eventDto) throws EventDoesNotExistException, UserDoesNotExistException{
+		return ResponseEntity.status(HttpStatus.OK).body(new EventDto(eventService.updateEvent(eventDto)));
 	}
 
 	@DeleteMapping("/{id}")
@@ -56,7 +57,7 @@ public class EventController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 	
-	@GetMapping("/{id}/add")
+	@GetMapping("/add-user/{id}")
 	public ResponseEntity<EventDto> addUserToEvent(@AuthenticationPrincipal User user, @PathVariable long id) throws EventDoesNotExistException, UserIsAlreadySignedUpForEvent{
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.addUserToEvent(user, id));
 	}

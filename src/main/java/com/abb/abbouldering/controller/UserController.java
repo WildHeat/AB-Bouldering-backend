@@ -1,7 +1,10 @@
 package com.abb.abbouldering.controller;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +24,7 @@ import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.service.UserService;
 
 @RestController
-@RequestMapping("api/v1/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
 	
 	@Autowired
@@ -36,6 +39,11 @@ public class UserController {
 	public ResponseEntity<User> handleDeleteUser(@PathVariable long id) throws UserDoesNotExistException {
 		userService.deleteUser(id);
 		return ResponseEntity.status(HttpStatus.OK).build();
+	}
+	
+	@GetMapping("/get-all-admin")
+	public ResponseEntity<ArrayList<String>> getAllAdminNames(){
+		return ResponseEntity.status(HttpStatus.OK).body(userService.getAllAdminNames());
 	}
 	
 	@GetMapping("/{id}")

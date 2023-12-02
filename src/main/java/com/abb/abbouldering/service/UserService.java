@@ -1,5 +1,6 @@
 package com.abb.abbouldering.service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.exception.UserAlreadyExistsException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
+import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.repository.UserRepository;
 
@@ -41,25 +43,35 @@ public class UserService {
 		}
 		userRepo.deleteById(id);
 	}
-	
+
 	public User editUser(User user) throws UserDoesNotExistException, InvalidCredentialsException {
 		Optional<User> optionalUser = userRepo.findById(user.getId());
-		
-		if(optionalUser.isEmpty()) {
+
+		if (optionalUser.isEmpty()) {
 			throw new UserDoesNotExistException();
 		}
-		
+
 		if (!passwordPattern.matcher(user.getPassword()).matches()) {
 			throw new InvalidCredentialsException("Password validation is not met");
 		}
-		
+
 		return userRepo.save(user);
 	}
-	
+
 	public User getUserById(long id) throws UserDoesNotExistException {
 		Optional<User> optionalUser = userRepo.findById(id);
-		if(optionalUser.isEmpty()) throw new UserDoesNotExistException();
+		if (optionalUser.isEmpty())
+			throw new UserDoesNotExistException();
 		return optionalUser.get();
+	}
+
+	public ArrayList<String> getAllAdminNames() {
+		ArrayList<User> admins = userRepo.findByRole(Role.ADMIN);
+		ArrayList<String> names = new ArrayList<String>();
+		admins.forEach((user) -> {
+			names.add(user.getId() +":"+ user.getFirstName() + " " + user.getLastName());
+		});
+		return names;
 	}
 
 }
