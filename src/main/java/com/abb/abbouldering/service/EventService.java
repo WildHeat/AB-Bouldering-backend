@@ -44,13 +44,17 @@ public class EventService {
 		Optional<Event> optionalEvent = eventRepo.findById(eventDto.getId());
 		if (optionalEvent.isEmpty())
 			throw new EventDoesNotExistException();
-
 		Event event = optionalEvent.get();
+		
+		if(event.getClimbers().size() > eventDto.getMaxSize()) {
+			event.setMaxSize(event.getClimbers().size());			
+		} else {
+			event.setMaxSize(eventDto.getMaxSize());
+		}
 
 		event.setDate(eventDto.getDate());
 		event.setDescription(eventDto.getDescription());
 		event.setImageUrl(eventDto.getImageUrl());
-		event.setMaxSize(eventDto.getMaxSize());
 		event.setPrice(eventDto.getPrice());
 		event.setSmallDescription(eventDto.getSmallDescription());
 		event.setTitle(eventDto.getTitle());
