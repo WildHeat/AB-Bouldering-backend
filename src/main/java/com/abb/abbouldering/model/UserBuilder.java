@@ -1,6 +1,8 @@
 package com.abb.abbouldering.model;
 
-import jakarta.validation.constraints.NotBlank;
+import java.util.ArrayList;
+
+import org.hibernate.mapping.List;
 
 public class UserBuilder {
 

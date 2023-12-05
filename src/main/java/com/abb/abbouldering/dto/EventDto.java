@@ -1,6 +1,6 @@
 package com.abb.abbouldering.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import com.abb.abbouldering.model.Event;
@@ -14,7 +14,7 @@ public class EventDto {
 	private String description;
 	private double price;
 	private int maxSize;
-	private LocalDate date;
+	private LocalDateTime date;
 	private String organiser;
 	private int spacesLeft;
 	private String imageUrl;
@@ -90,11 +90,11 @@ public class EventDto {
 		this.maxSize = maxSize;
 	}
 
-	public LocalDate getDate() {
+	public LocalDateTime getDate() {
 		return date;
 	}
 
-	public void setDate(LocalDate date) {
+	public void setDate(LocalDateTime date) {
 		this.date = date;
 	}
 

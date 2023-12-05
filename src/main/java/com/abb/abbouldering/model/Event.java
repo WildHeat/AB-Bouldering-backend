@@ -1,6 +1,7 @@
 package com.abb.abbouldering.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.abb.abbouldering.dto.EventDto;
@@ -10,6 +11,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
@@ -34,7 +36,7 @@ public class Event {
 	@Min(1)
 	@Max(100)
 	private int maxSize;
-	private LocalDate date;
+	private LocalDateTime date;
 	@ManyToOne(optional = false)
 	private User organiser;  
 	@OneToMany(cascade = CascadeType.ALL)
@@ -44,7 +46,7 @@ public class Event {
 	public Event() {}
 	
 	public Event(long id, @NotBlank String title, String smallDescription, @NotBlank String description,
-			@Min(0) double price, @Min(1) @Max(100) int maxSize, LocalDate date, User organiser, List<User> climbers,
+			@Min(0) double price, @Min(1) @Max(100) int maxSize, LocalDateTime date, User organiser, List<User> climbers,
 			String imageUrl) {
 		super();
 		this.id = id;
@@ -107,11 +109,11 @@ public class Event {
 		this.maxSize = maxSize;
 	}
 
-	public LocalDate getDate() {
+	public LocalDateTime getDate() {
 		return date;
 	}
 
-	public void setDate(LocalDate date) {
+	public void setDate(LocalDateTime date) {
 		this.date = date;
 	}
 

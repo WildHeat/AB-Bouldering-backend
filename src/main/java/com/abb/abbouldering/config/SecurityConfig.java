@@ -10,15 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 
-import io.jsonwebtoken.lang.Collections;
-import jakarta.servlet.http.HttpServletRequest;
-
-import static org.springframework.security.config.Customizer.withDefaults;
-
-import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
