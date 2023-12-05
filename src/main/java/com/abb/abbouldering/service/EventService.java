@@ -26,10 +26,12 @@ public class EventService {
 	@Autowired
 	private UserRepository userRepo;
 
-	public Event addEvent(Event event) throws EventAlreadyExistsException {
-		if (eventRepo.existsById(event.getId())) {
+	public Event addEvent(EventDto eventDto) throws EventAlreadyExistsException, UserDoesNotExistException {
+		if (eventRepo.existsById(eventDto.getId())) {
 			throw new EventAlreadyExistsException();
 		}
+		Event event = new Event();
+		event = convertEventDtoToEvent(event, eventDto);
 		return eventRepo.save(event);
 	}
 
@@ -46,24 +48,27 @@ public class EventService {
 			throw new EventDoesNotExistException();
 		Event event = optionalEvent.get();
 		
-		if(event.getClimbers().size() > eventDto.getMaxSize()) {
-			event.setMaxSize(event.getClimbers().size());			
-		} else {
-			event.setMaxSize(eventDto.getMaxSize());
-		}
-
-		event.setDate(eventDto.getDate());
-		event.setDescription(eventDto.getDescription());
-		event.setImageUrl(eventDto.getImageUrl());
-		event.setPrice(eventDto.getPrice());
-		event.setSmallDescription(eventDto.getSmallDescription());
-		event.setTitle(eventDto.getTitle());
-
-		long organiserId = Long.parseLong(eventDto.getOrganiser().split(":")[0]);
-		Optional<User> optionalOrganiser = userRepo.findById(organiserId);
-		if (optionalOrganiser.isEmpty())
-			throw new UserDoesNotExistException();
-		event.setOrganiser(optionalOrganiser.get());
+//		if(event.getClimbers().size() > eventDto.getMaxSize()) {
+//			event.setMaxSize(event.getClimbers().size());			
+//		} else {
+//			event.setMaxSize(eventDto.getMaxSize());
+//		}
+//
+//		event.setDate(eventDto.getDate());
+//		event.setDescription(eventDto.getDescription());
+//		event.setImageUrl(eventDto.getImageUrl());
+//		event.setPrice(eventDto.getPrice());
+//		event.setSmallDescription(eventDto.getSmallDescription());
+//		event.setTitle(eventDto.getTitle());
+//
+//		long organiserId = Long.parseLong(eventDto.getOrganiser().split(":")[0]);
+//		Optional<User> optionalOrganiser = userRepo.findById(organiserId);
+//		if (optionalOrganiser.isEmpty())
+//			throw new UserDoesNotExistException();
+//		event.setOrganiser(optionalOrganiser.get());
+		
+		event = convertEventDtoToEvent(event, eventDto);
+		event = maxSizeCheck(event, eventDto);
 
 		return eventRepo.save(event);
 	}
@@ -107,4 +112,30 @@ public class EventService {
 		return false;
 	}
 
+	private Event convertEventDtoToEvent(Event event, EventDto eventDto) throws UserDoesNotExistException {
+		event.setDate(eventDto.getDate());
+		event.setDescription(eventDto.getDescription());
+		event.setImageUrl(eventDto.getImageUrl());
+		event.setPrice(eventDto.getPrice());
+		event.setSmallDescription(eventDto.getSmallDescription());
+		event.setTitle(eventDto.getTitle());
+		event.setMaxSize(eventDto.getMaxSize());
+
+		long organiserId = Long.parseLong(eventDto.getOrganiser().split(":")[0]);
+		Optional<User> optionalOrganiser = userRepo.findById(organiserId);
+		if (optionalOrganiser.isEmpty())
+			throw new UserDoesNotExistException();
+		event.setOrganiser(optionalOrganiser.get());
+		
+		return event; 
+	}
+	
+	private Event maxSizeCheck(Event event, EventDto eventDto) {
+		if(event.getClimbers() != null && event.getClimbers().size() > eventDto.getMaxSize()) {
+			event.setMaxSize(event.getClimbers().size());			
+		} else {
+			event.setMaxSize(eventDto.getMaxSize());
+		}
+		return event;
+	}
 }

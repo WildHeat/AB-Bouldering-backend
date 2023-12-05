@@ -31,8 +31,15 @@ public class EventDto {
 		this.maxSize = event.getMaxSize();
 		this.date = event.getDate();
 		this.organiser = event.getOrganiser().getId() + ":" + event.getOrganiser().getFirstName() + " " + event.getOrganiser().getLastName();
-		this.spacesLeft = maxSize - event.getClimbers().size();
+		this.spacesLeft = spacesLeftCalculation(maxSize, event);
 		this.imageUrl = event.getImageUrl();
+	}
+	
+	private int spacesLeftCalculation(int maxSize, Event event) {
+		if(event.getClimbers() == null) {
+			return maxSize;
+		}
+		return maxSize - event.getClimbers().size();
 	}
 
 	public long getId() {

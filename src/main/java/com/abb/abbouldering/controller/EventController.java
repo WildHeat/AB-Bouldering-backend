@@ -37,8 +37,8 @@ public class EventController {
 	}
 
 	@PostMapping
-	public ResponseEntity<Event> handleAddEvent(@RequestBody Event event) throws EventAlreadyExistsException{
-		return ResponseEntity.status(HttpStatus.CREATED).body(eventService.addEvent(event));
+	public ResponseEntity<EventDto> handleAddEvent(@RequestBody EventDto eventDto) throws EventAlreadyExistsException, UserDoesNotExistException{
+		return ResponseEntity.status(HttpStatus.CREATED).body(new EventDto(eventService.addEvent(eventDto)));
 	}
 	
 	@GetMapping("/all/{id}")
