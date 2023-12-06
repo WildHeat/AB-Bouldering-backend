@@ -8,9 +8,12 @@ import com.abb.abbouldering.dto.EventDto;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -38,16 +41,21 @@ public class Event {
 	private int maxSize;
 	private LocalDateTime date;
 	@ManyToOne(optional = false)
-	private User organiser;  
-	@OneToMany(cascade = CascadeType.ALL)
-	private List<User> climbers;
+	private User organiser;
+
+	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@JoinTable(name = "event_users_table", joinColumns = {
+			@JoinColumn(name = "event_id", referencedColumnName = "id") }, inverseJoinColumns = {
+					@JoinColumn(name = "user_id", referencedColumnName = "id") })
+	private List<User> users;
 	private String imageUrl;
-	
-	public Event() {}
-	
+
+	public Event() {
+	}
+
 	public Event(long id, @NotBlank String title, String smallDescription, @NotBlank String description,
-			@Min(0) double price, @Min(1) @Max(100) int maxSize, LocalDateTime date, User organiser, List<User> climbers,
-			String imageUrl) {
+			@Min(0) double price, @Min(1) @Max(100) int maxSize, LocalDateTime date, User organiser,
+			List<User> users, String imageUrl) {
 		super();
 		this.id = id;
 		this.title = title;
@@ -57,7 +65,7 @@ public class Event {
 		this.maxSize = maxSize;
 		this.date = date;
 		this.organiser = organiser;
-		this.climbers = climbers;
+		this.users = users;
 		this.imageUrl = imageUrl;
 	}
 
@@ -118,11 +126,11 @@ public class Event {
 	}
 
 	public List<User> getClimbers() {
-		return climbers;
+		return users;
 	}
 
-	public void setClimbers(List<User> climbers) {
-		this.climbers = climbers;
+	public void setClimbers(List<User> users) {
+		this.users = users;
 	}
 
 	public User getOrganiser() {
@@ -132,9 +140,9 @@ public class Event {
 	public void setOrganiser(User organiser) {
 		this.organiser = organiser;
 	}
-	
+
 	public void addUserToEvent(User user) {
-		this.climbers.add(user);
+		this.users.add(user);
 	}
 
 	public String getImageUrl() {

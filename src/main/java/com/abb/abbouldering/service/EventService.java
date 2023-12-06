@@ -138,4 +138,9 @@ public class EventService {
 		}
 		return event;
 	}
+
+	public List<EventDto> getAllEventsWhereUser(User user) {
+		
+		return null;
+	}
 }

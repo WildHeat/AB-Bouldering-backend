@@ -62,4 +62,9 @@ public class EventController {
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.addUserToEvent(user, id));
 	}
 	
+	@GetMapping("/user/get-my-events")
+	public ResponseEntity<List<EventDto>> getEventsUserIsBooked(@AuthenticationPrincipal User user){
+		return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEventsWhereUser(user));
+	}
+	
 }
