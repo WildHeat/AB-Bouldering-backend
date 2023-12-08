@@ -37,7 +37,7 @@ public class User implements UserDetails {
 	@Enumerated(EnumType.STRING)
 	private Role role;
 	
-	@ManyToMany(mappedBy = "users", fetch = FetchType.LAZY)
+	@ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
 	private List<Event> events;
 
 	public User() {
@@ -133,18 +133,18 @@ public class User implements UserDetails {
 		this.role = role;
 	}
 
-	@Override
-	public String toString() {
-		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
-				+ ", password=" + password + ", role=" + role + "]";
-	}
-
 	public List<Event> getEvents() {
 		return events;
 	}
 
 	public void setEvents(List<Event> events) {
 		this.events = events;
+	}
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
+				+ ", password=" + password + ", role=" + role + ", events=" + events + "]";
 	}
 
 }

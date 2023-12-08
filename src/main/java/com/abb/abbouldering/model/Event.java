@@ -43,7 +43,7 @@ public class Event {
 	@ManyToOne(optional = false)
 	private User organiser;
 
-	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+	@ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
 	@JoinTable(name = "event_users_table", joinColumns = {
 			@JoinColumn(name = "event_id", referencedColumnName = "id") }, inverseJoinColumns = {
 					@JoinColumn(name = "user_id", referencedColumnName = "id") })

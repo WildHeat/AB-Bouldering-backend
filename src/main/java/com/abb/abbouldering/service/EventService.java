@@ -140,7 +140,8 @@ public class EventService {
 	}
 
 	public List<EventDto> getAllEventsWhereUser(User user) {
-		
-		return null;
+		ArrayList<EventDto> eventsDto = new ArrayList<EventDto>();
+		user.getEvents().forEach(event -> eventsDto.add(new EventDto(event)));
+		return eventsDto;
 	}
 }

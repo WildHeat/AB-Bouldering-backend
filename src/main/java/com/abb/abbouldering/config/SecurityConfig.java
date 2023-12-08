@@ -31,7 +31,7 @@ public class SecurityConfig {
 				authorize -> authorize
 					.requestMatchers("/api/v1/auth/**", "/api/v1/events/all", "/api/v1/events/all/**")
 					.permitAll()
-					.requestMatchers("/api/v1/events/add-user/**")
+					.requestMatchers("/api/v1/events/add-user/**", "/api/v1/events/get-my-events")
 					.hasAuthority("USER")
 					.requestMatchers("/api/v1/events/**", "/api/v1/events", "/api/v1/users/get-all-admin")
 					.hasAuthority("ADMIN")
