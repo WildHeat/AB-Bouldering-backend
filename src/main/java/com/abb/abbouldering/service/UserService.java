@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.abb.abbouldering.exception.InvalidCredentialsException;
@@ -20,6 +21,9 @@ public class UserService {
 	private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,20}$";
 	private static final Pattern passwordPattern = Pattern.compile(PASSWORD_PATTERN);
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+	
 	@Autowired
 	private UserRepository userRepo;
 
@@ -44,17 +48,21 @@ public class UserService {
 		userRepo.deleteById(id);
 	}
 
-	public User editUser(User user) throws UserDoesNotExistException, InvalidCredentialsException {
-		Optional<User> optionalUser = userRepo.findById(user.getId());
+	public User editUser(User principle, User user) throws UserDoesNotExistException, InvalidCredentialsException {
+		Optional<User> optionalUser = userRepo.findByEmailIgnoreCase(user.getEmail());
 
-		if (optionalUser.isEmpty()) {
+		if (optionalUser.isEmpty())
 			throw new UserDoesNotExistException();
-		}
-
+		if (principle.getId() != optionalUser.get().getId())
+			throw new InvalidCredentialsException("Wrong user");
 		if (!passwordPattern.matcher(user.getPassword()).matches()) {
 			throw new InvalidCredentialsException("Password validation is not met");
 		}
-
+		
+		user.setId(principle.getId());
+		user.setRole(principle.getRole());
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		
 		return userRepo.save(user);
 	}
 
@@ -69,7 +77,7 @@ public class UserService {
 		ArrayList<User> admins = userRepo.findByRole(Role.ADMIN);
 		ArrayList<String> names = new ArrayList<String>();
 		admins.forEach((user) -> {
-			names.add(user.getId() +":"+ user.getFirstName() + " " + user.getLastName());
+			names.add(user.getId() + ":" + user.getFirstName() + " " + user.getLastName());
 		});
 		return names;
 	}

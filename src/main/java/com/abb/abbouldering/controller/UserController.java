@@ -52,8 +52,8 @@ public class UserController {
 	}
 
 	@PutMapping
-	public ResponseEntity<UserDto> handleEditUser(@RequestBody User user) throws UserDoesNotExistException, InvalidCredentialsException{
-		return ResponseEntity.status(HttpStatus.OK).body(new UserDto(userService.editUser(user)));
+	public ResponseEntity<UserDto> handleEditUser(@AuthenticationPrincipal User principal, @RequestBody User editedUser) throws UserDoesNotExistException, InvalidCredentialsException{
+		return ResponseEntity.status(HttpStatus.OK).body(new UserDto(userService.editUser(principal, editedUser)));
 	}
 	
 	@GetMapping("/get-user")

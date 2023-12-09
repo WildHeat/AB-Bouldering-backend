@@ -57,14 +57,14 @@ public class EventController {
 		return ResponseEntity.status(HttpStatus.OK).build();
 	}
 	
-	@GetMapping("/add-user/{id}")
+	@GetMapping("/user/add-user/{id}")
 	public ResponseEntity<EventDto> addUserToEvent(@AuthenticationPrincipal User user, @PathVariable long id) throws EventDoesNotExistException, UserIsAlreadySignedUpForEvent{
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.addUserToEvent(user, id));
 	}
 	
-	@GetMapping("/get-my-events")
-	public ResponseEntity<List<EventDto>> getEventsUserIsBooked(@AuthenticationPrincipal User user){
-		return ResponseEntity.status(HttpStatus.OK).body(eventService.getAllEventsWhereUser(user));
+	@GetMapping("/user/get-my-events")
+	public ResponseEntity<List<EventDto>> getMyEvents(@AuthenticationPrincipal User user){
+		return ResponseEntity.status(HttpStatus.OK).body(eventService.getMyEvents(user));
 	}
 	
 }

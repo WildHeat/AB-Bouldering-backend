@@ -13,6 +13,7 @@ import com.abb.abbouldering.exception.EventDoesNotExistException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEvent;
 import com.abb.abbouldering.model.Event;
+import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.repository.EventRepository;
 import com.abb.abbouldering.repository.UserRepository;
@@ -47,26 +48,6 @@ public class EventService {
 		if (optionalEvent.isEmpty())
 			throw new EventDoesNotExistException();
 		Event event = optionalEvent.get();
-		
-//		if(event.getClimbers().size() > eventDto.getMaxSize()) {
-//			event.setMaxSize(event.getClimbers().size());			
-//		} else {
-//			event.setMaxSize(eventDto.getMaxSize());
-//		}
-//
-//		event.setDate(eventDto.getDate());
-//		event.setDescription(eventDto.getDescription());
-//		event.setImageUrl(eventDto.getImageUrl());
-//		event.setPrice(eventDto.getPrice());
-//		event.setSmallDescription(eventDto.getSmallDescription());
-//		event.setTitle(eventDto.getTitle());
-//
-//		long organiserId = Long.parseLong(eventDto.getOrganiser().split(":")[0]);
-//		Optional<User> optionalOrganiser = userRepo.findById(organiserId);
-//		if (optionalOrganiser.isEmpty())
-//			throw new UserDoesNotExistException();
-//		event.setOrganiser(optionalOrganiser.get());
-		
 		event = convertEventDtoToEvent(event, eventDto);
 		event = maxSizeCheck(event, eventDto);
 
@@ -142,6 +123,19 @@ public class EventService {
 	public List<EventDto> getAllEventsWhereUser(User user) {
 		ArrayList<EventDto> eventsDto = new ArrayList<EventDto>();
 		user.getEvents().forEach(event -> eventsDto.add(new EventDto(event)));
+		return eventsDto;
+	}
+	
+	public List<EventDto> getMyEvents(User user){
+		if(user.getRole() == Role.USER) {
+			return getAllEventsWhereUser(user);		
+		}
+		return getAllOrganisersEvents(user);
+	}
+
+	private List<EventDto> getAllOrganisersEvents(User user) {
+		ArrayList<EventDto> eventsDto = new ArrayList<EventDto>();
+		eventRepo.findByOrganiser(user).forEach(event -> eventsDto.add(new EventDto(event)));
 		return eventsDto;
 	}
 }
