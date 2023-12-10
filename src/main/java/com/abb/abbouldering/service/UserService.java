@@ -59,6 +59,9 @@ public class UserService {
 		
 		if (principle.getId() != user.getId())
 			throw new InvalidCredentialsException("Wrong user");
+		
+		if (!passwordEncoder.matches(editUser.getOldPassword(), user.getPassword()))
+			throw new InvalidCredentialsException("Invalid credentials");
 				
 		if(editUser.getPassword() != null && editUser.getPassword() != "") {
 			newPasswordCheck(editUser,user);
@@ -78,8 +81,6 @@ public class UserService {
 	}
 	
 	private void newPasswordCheck(EditUserDto editUser, User user) throws InvalidCredentialsException {
-		if (!passwordEncoder.matches(editUser.getOldPassword(), user.getPassword()))
-			throw new InvalidCredentialsException("Invalid credentials");
 		if (!passwordPattern.matcher(editUser.getPassword()).matches()) {
 			throw new InvalidCredentialsException("Password validation is not met");
 		}
