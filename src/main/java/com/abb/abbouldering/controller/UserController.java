@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.abb.abbouldering.dto.EditUserDto;
+import com.abb.abbouldering.dto.RegisterRequest;
 import com.abb.abbouldering.dto.UserDto;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
-import com.abb.abbouldering.exception.UserAlreadyExistsException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.service.UserService;
@@ -30,11 +30,6 @@ public class UserController {
 	
 	@Autowired
 	private UserService userService; 
-	
-	@PostMapping
-	public ResponseEntity<UserDto> handleAddUser(@RequestBody User user) throws UserAlreadyExistsException, InvalidCredentialsException{
-		return ResponseEntity.status(HttpStatus.CREATED).body(new UserDto(userService.addUser(user)));
-	}
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<User> handleDeleteUser(@PathVariable long id) throws UserDoesNotExistException {
@@ -58,7 +53,12 @@ public class UserController {
 	}
 	
 	@GetMapping("/get-user")
-	public ResponseEntity<UserDto> get(@AuthenticationPrincipal User user){
-		return ResponseEntity.ok(new UserDto(user));
+	public ResponseEntity<UserDto> getUser(@AuthenticationPrincipal User user){
+		return ResponseEntity.status(HttpStatus.OK).body(new UserDto(user));
+	}
+	
+	@PostMapping("/new-admin")
+	public ResponseEntity<UserDto> addNewAdmin(@RequestBody RegisterRequest request){
+		return ResponseEntity.status(HttpStatus.CREATED).body(new UserDto(userService.addNewAdmin(request)));
 	}
 }

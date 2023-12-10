@@ -9,11 +9,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.abb.abbouldering.dto.EditUserDto;
+import com.abb.abbouldering.dto.RegisterRequest;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.exception.UserAlreadyExistsException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
+import com.abb.abbouldering.model.UserBuilder;
 import com.abb.abbouldering.repository.UserRepository;
 
 @Service
@@ -27,20 +29,6 @@ public class UserService {
 	
 	@Autowired
 	private UserRepository userRepo;
-
-	public User addUser(User user) throws UserAlreadyExistsException, InvalidCredentialsException {
-		Optional<User> optionalUser = userRepo.findByEmailIgnoreCase(user.getEmail());
-
-		if (optionalUser.isPresent()) {
-			throw new UserAlreadyExistsException();
-		}
-
-		if (!passwordPattern.matcher(user.getPassword()).matches()) {
-			throw new InvalidCredentialsException("Password validation is not met");
-		}
-
-		return userRepo.save(user);
-	}
 
 	public void deleteUser(long id) throws UserDoesNotExistException {
 		if (!userRepo.existsById(id)) {
@@ -101,6 +89,18 @@ public class UserService {
 			names.add(user.getId() + ":" + user.getFirstName() + " " + user.getLastName());
 		});
 		return names;
+	}
+
+	public User addNewAdmin(RegisterRequest request) {
+		UserBuilder userBuilder = new UserBuilder();
+		User user = userBuilder
+				.firstName(request.getFirstName())
+				.lastName(request.getLastName())
+				.email(request.getEmail())
+				.password(passwordEncoder.encode(request.getPassword()))
+				.role(Role.ADMIN)
+				.build();
+		return userRepo.save(user);
 	}
 
 }

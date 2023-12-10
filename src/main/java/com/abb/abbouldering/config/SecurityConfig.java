@@ -35,7 +35,7 @@ public class SecurityConfig {
 					.permitAll()
 					.requestMatchers("/api/v1/events/user/**")
 					.hasAnyAuthority("USER", "ADMIN")
-					.requestMatchers("/api/v1/events/**", "/api/v1/events", "/api/v1/users/get-all-admin")
+					.requestMatchers("/api/v1/events/**", "/api/v1/events", "/api/v1/users/get-all-admin", "/api/v1/users/new-admin")
 					.hasAuthority("ADMIN")
 					.anyRequest()
 					.authenticated()
