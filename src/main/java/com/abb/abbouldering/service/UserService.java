@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.abb.abbouldering.dto.EditUserDto;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.exception.UserAlreadyExistsException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
@@ -48,22 +49,41 @@ public class UserService {
 		userRepo.deleteById(id);
 	}
 
-	public User editUser(User principle, User user) throws UserDoesNotExistException, InvalidCredentialsException {
-		Optional<User> optionalUser = userRepo.findByEmailIgnoreCase(user.getEmail());
+	public User editUser(User principle, EditUserDto editUser) throws UserDoesNotExistException, InvalidCredentialsException {
+		Optional<User> optionalUser = userRepo.findByEmailIgnoreCase(editUser.getEmail());
 
 		if (optionalUser.isEmpty())
 			throw new UserDoesNotExistException();
-		if (principle.getId() != optionalUser.get().getId())
+		
+		User user = optionalUser.get();
+		
+		if (principle.getId() != user.getId())
 			throw new InvalidCredentialsException("Wrong user");
-		if (!passwordPattern.matcher(user.getPassword()).matches()) {
-			throw new InvalidCredentialsException("Password validation is not met");
+				
+		if(editUser.getPassword() != null && editUser.getPassword() != "") {
+			newPasswordCheck(editUser,user);
 		}
+
+		if(editUser.getFirstName() == null || editUser.getFirstName().equals(""))
+			throw new InvalidCredentialsException("Invalid credentials");
+		if(editUser.getLastName() == null || editUser.getLastName().equals(""))
+			throw new InvalidCredentialsException("Invalid credentials");
 		
 		user.setId(principle.getId());
+		user.setFirstName(editUser.getFirstName());
+		user.setLastName(editUser.getLastName());
 		user.setRole(principle.getRole());
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		
 		return userRepo.save(user);
+	}
+	
+	private void newPasswordCheck(EditUserDto editUser, User user) throws InvalidCredentialsException {
+		if (!passwordEncoder.matches(editUser.getOldPassword(), user.getPassword()))
+			throw new InvalidCredentialsException("Invalid credentials");
+		if (!passwordPattern.matcher(editUser.getPassword()).matches()) {
+			throw new InvalidCredentialsException("Password validation is not met");
+		}
+		user.setPassword(passwordEncoder.encode(editUser.getPassword()));
 	}
 
 	public User getUserById(long id) throws UserDoesNotExistException {

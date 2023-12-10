@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.abb.abbouldering.dto.EditUserDto;
 import com.abb.abbouldering.dto.UserDto;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.exception.UserAlreadyExistsException;
@@ -52,7 +53,7 @@ public class UserController {
 	}
 
 	@PutMapping
-	public ResponseEntity<UserDto> handleEditUser(@AuthenticationPrincipal User principal, @RequestBody User editedUser) throws UserDoesNotExistException, InvalidCredentialsException{
+	public ResponseEntity<UserDto> handleEditUser(@AuthenticationPrincipal User principal, @RequestBody EditUserDto editedUser) throws UserDoesNotExistException, InvalidCredentialsException{
 		return ResponseEntity.status(HttpStatus.OK).body(new UserDto(userService.editUser(principal, editedUser)));
 	}
 	
