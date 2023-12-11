@@ -23,6 +23,9 @@ public class UserService {
 
 	private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,20}$";
 	private static final Pattern passwordPattern = Pattern.compile(PASSWORD_PATTERN);
+	
+	private static final String EMAIL_PATTERN = "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+	private static final Pattern emailPattern = Pattern.compile(EMAIL_PATTERN);
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -91,7 +94,15 @@ public class UserService {
 		return names;
 	}
 
-	public User addNewAdmin(RegisterRequest request) {
+	public User addNewAdmin(RegisterRequest request) throws InvalidCredentialsException {
+		if(!passwordPattern.matcher(request.getPassword()).matches()){
+			throw new InvalidCredentialsException("");
+		}
+
+		if(emailPattern.matcher(request.getEmail()).matches()){
+			throw new InvalidCredentialsException("");			
+		}
+			
 		UserBuilder userBuilder = new UserBuilder();
 		User user = userBuilder
 				.firstName(request.getFirstName())

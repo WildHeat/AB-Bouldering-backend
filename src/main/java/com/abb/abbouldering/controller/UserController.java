@@ -58,7 +58,7 @@ public class UserController {
 	}
 	
 	@PostMapping("/new-admin")
-	public ResponseEntity<UserDto> addNewAdmin(@RequestBody RegisterRequest request){
+	public ResponseEntity<UserDto> addNewAdmin(@RequestBody RegisterRequest request) throws InvalidCredentialsException{
 		return ResponseEntity.status(HttpStatus.CREATED).body(new UserDto(userService.addNewAdmin(request)));
 	}
 }

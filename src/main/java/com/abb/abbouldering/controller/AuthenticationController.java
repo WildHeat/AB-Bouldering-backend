@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.abb.abbouldering.dto.AuthenticationRequest;
 import com.abb.abbouldering.dto.AuthenticationResponse;
 import com.abb.abbouldering.dto.RegisterRequest;
+import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.service.AuthenticationService;
 
@@ -24,7 +25,7 @@ public class AuthenticationController {
 	private AuthenticationService authService;
 
 	@PostMapping("/register")
-	public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request){
+	public ResponseEntity<AuthenticationResponse> register(@RequestBody RegisterRequest request) throws InvalidCredentialsException{
 		return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
 	}
 	

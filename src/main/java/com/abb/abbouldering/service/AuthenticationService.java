@@ -1,5 +1,7 @@
 package com.abb.abbouldering.service;
 
+import java.util.regex.Pattern;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,6 +13,7 @@ import com.abb.abbouldering.config.JwtService;
 import com.abb.abbouldering.dto.AuthenticationRequest;
 import com.abb.abbouldering.dto.AuthenticationResponse;
 import com.abb.abbouldering.dto.RegisterRequest;
+import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
@@ -31,8 +34,22 @@ public class AuthenticationService {
 	
 	@Autowired 
 	private AuthenticationManager authenticationManager;
+	
+	private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,20}$";
+	private static final Pattern passwordPattern = Pattern.compile(PASSWORD_PATTERN);
+	
+	private static final String EMAIL_PATTERN = "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
+	private static final Pattern emailPattern = Pattern.compile(EMAIL_PATTERN);
 
-	public AuthenticationResponse register(RegisterRequest request) {
+	public AuthenticationResponse register(RegisterRequest request) throws InvalidCredentialsException {
+		if(!passwordPattern.matcher(request.getPassword()).matches()){
+			throw new InvalidCredentialsException("");
+		}
+
+		if(emailPattern.matcher(request.getEmail()).matches()){
+			throw new InvalidCredentialsException("");			
+		}
+		
 		UserBuilder userBuilder = new UserBuilder();
 		User user = userBuilder
 				.firstName(request.getFirstName())
