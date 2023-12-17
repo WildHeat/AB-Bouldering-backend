@@ -31,9 +31,8 @@ public class MailSenderService {
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom("lowid11@googlemail.com");
 		message.setTo(toEmail);
-		message.setText(body + "\nWe will get back to you as soon as possible! Thank you "+ name);
+		message.setText(body + "\n\nWe will get back to you as soon as possible! Thank you "+ name);
 		message.setSubject(subject);
 		mailSender.send(message);
-		System.out.println("Mail sent");
 	}
 }
