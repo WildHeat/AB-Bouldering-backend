@@ -46,6 +46,11 @@ public class EventController {
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventById(id));
 	}
 	
+	@GetMapping("/all/top4")
+	public ResponseEntity<List<EventDto>> handleGetTopEvents(){
+		return ResponseEntity.status(HttpStatus.OK).body(eventService.getTopEvents());
+	}
+	
 	@PutMapping
 	public ResponseEntity<EventDto> handleEditEvent(@RequestBody EventDto eventDto) throws EventDoesNotExistException, UserDoesNotExistException{
 		return ResponseEntity.status(HttpStatus.OK).body(new EventDto(eventService.updateEvent(eventDto)));

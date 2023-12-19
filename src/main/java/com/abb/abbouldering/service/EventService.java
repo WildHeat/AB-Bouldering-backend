@@ -138,4 +138,13 @@ public class EventService {
 		eventRepo.findByOrganiser(user).forEach(event -> eventsDto.add(new EventDto(event)));
 		return eventsDto;
 	}
+
+	public List<EventDto> getTopEvents() {
+		List<Event> events = eventRepo.findFirst4ByOrderByDateDesc();
+		ArrayList<EventDto> eventsDto = new ArrayList<EventDto>();
+		for (Event event : events) {
+			eventsDto.add(new EventDto(event));
+		}
+		return eventsDto;
+	}
 }

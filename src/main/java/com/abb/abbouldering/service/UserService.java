@@ -96,11 +96,11 @@ public class UserService {
 
 	public User addNewAdmin(RegisterRequest request) throws InvalidCredentialsException {
 		if(!passwordPattern.matcher(request.getPassword()).matches()){
-			throw new InvalidCredentialsException("");
+			throw new InvalidCredentialsException("Invalid password");
 		}
 
-		if(emailPattern.matcher(request.getEmail()).matches()){
-			throw new InvalidCredentialsException("");			
+		if(!emailPattern.matcher(request.getEmail()).matches()){
+			throw new InvalidCredentialsException("Invalid email");			
 		}
 			
 		UserBuilder userBuilder = new UserBuilder();
