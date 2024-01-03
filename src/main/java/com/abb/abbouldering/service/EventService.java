@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.abb.abbouldering.dto.EventDto;
@@ -17,6 +18,8 @@ import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.repository.EventRepository;
 import com.abb.abbouldering.repository.UserRepository;
+import com.stripe.model.checkout.Session;
+import com.stripe.param.checkout.SessionCreateParams;
 
 @Service
 public class EventService {
@@ -26,6 +29,24 @@ public class EventService {
 
 	@Autowired
 	private UserRepository userRepo;
+	
+	@Value("${stripe.secret}")
+	private String stripeSecret;
+	
+	private void handleCreateSession(User user) {
+		SessionCreateParams params =
+				  SessionCreateParams.builder()
+				    .setSuccessUrl("https://example.com/success")
+				    .addLineItem(
+				      SessionCreateParams.LineItem.builder()
+				        .setPrice("price_1MotwRLkdIwHu7ixYcPLm5uZ")
+				        .setQuantity(2L)
+				        .build()
+				    )
+				    .setMode(SessionCreateParams.Mode.PAYMENT)
+				    .build();
+				Session session = Session.create(params);
+	}
 
 	public Event addEvent(EventDto eventDto) throws EventAlreadyExistsException, UserDoesNotExistException {
 		if (eventRepo.existsById(eventDto.getId())) {
