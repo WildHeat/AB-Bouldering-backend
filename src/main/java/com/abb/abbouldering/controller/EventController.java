@@ -23,6 +23,8 @@ import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEvent;
 import com.abb.abbouldering.model.Event;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.service.EventService;
+import com.stripe.exception.StripeException;
+import com.stripe.model.checkout.Session;
 
 @RestController
 @RequestMapping("/api/v1/events")
@@ -49,6 +51,11 @@ public class EventController {
 	@GetMapping("/all/top4")
 	public ResponseEntity<List<EventDto>> handleGetTopEvents(){
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.getTopEvents());
+	}
+	
+	@GetMapping("/all/session")
+	public ResponseEntity<String> createSession() throws StripeException{
+		return ResponseEntity.ok(eventService.handleCreateSession());
 	}
 	
 	@PutMapping

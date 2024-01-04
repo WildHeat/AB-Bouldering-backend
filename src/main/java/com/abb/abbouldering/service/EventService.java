@@ -18,8 +18,12 @@ import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.repository.EventRepository;
 import com.abb.abbouldering.repository.UserRepository;
+import com.stripe.Stripe;
+import com.stripe.exception.StripeException;
+import com.stripe.model.LineItem;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData;
 
 @Service
 public class EventService {
@@ -29,23 +33,22 @@ public class EventService {
 
 	@Autowired
 	private UserRepository userRepo;
-	
+
 	@Value("${stripe.secret}")
 	private String stripeSecret;
-	
-	private void handleCreateSession(User user) {
-		SessionCreateParams params =
-				  SessionCreateParams.builder()
-				    .setSuccessUrl("https://example.com/success")
-				    .addLineItem(
-				      SessionCreateParams.LineItem.builder()
-				        .setPrice("price_1MotwRLkdIwHu7ixYcPLm5uZ")
-				        .setQuantity(2L)
-				        .build()
-				    )
-				    .setMode(SessionCreateParams.Mode.PAYMENT)
-				    .build();
-				Session session = Session.create(params);
+
+	public String handleCreateSession() throws StripeException {
+		Stripe.apiKey = stripeSecret;
+
+		SessionCreateParams params = SessionCreateParams.builder().setCancelUrl("https://facebook.com")
+				.setSuccessUrl("https://google.com")
+				.addLineItem(SessionCreateParams.LineItem.builder()
+						.setPriceData(PriceData.builder().setCurrency("gbp").setUnitAmount(1000l).setProductData(com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData.ProductData.builder().setName("EVNT").build()).build())
+						.setQuantity(1L).build())
+				.setMode(SessionCreateParams.Mode.PAYMENT).build();
+		Session session = Session.create(params);
+		System.out.println(session);
+		return session.getUrl();
 	}
 
 	public Event addEvent(EventDto eventDto) throws EventAlreadyExistsException, UserDoesNotExistException {
@@ -128,13 +131,13 @@ public class EventService {
 		if (optionalOrganiser.isEmpty())
 			throw new UserDoesNotExistException();
 		event.setOrganiser(optionalOrganiser.get());
-		
-		return event; 
+
+		return event;
 	}
-	
+
 	private Event maxSizeCheck(Event event, EventDto eventDto) {
-		if(event.getClimbers() != null && event.getClimbers().size() > eventDto.getMaxSize()) {
-			event.setMaxSize(event.getClimbers().size());			
+		if (event.getClimbers() != null && event.getClimbers().size() > eventDto.getMaxSize()) {
+			event.setMaxSize(event.getClimbers().size());
 		} else {
 			event.setMaxSize(eventDto.getMaxSize());
 		}
@@ -146,10 +149,10 @@ public class EventService {
 		user.getEvents().forEach(event -> eventsDto.add(new EventDto(event)));
 		return eventsDto;
 	}
-	
-	public List<EventDto> getMyEvents(User user){
-		if(user.getRole() == Role.USER) {
-			return getAllEventsWhereUser(user);		
+
+	public List<EventDto> getMyEvents(User user) {
+		if (user.getRole() == Role.USER) {
+			return getAllEventsWhereUser(user);
 		}
 		return getAllOrganisersEvents(user);
 	}
