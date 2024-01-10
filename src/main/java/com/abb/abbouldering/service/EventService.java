@@ -34,23 +34,6 @@ public class EventService {
 	@Autowired
 	private UserRepository userRepo;
 
-	@Value("${stripe.secret}")
-	private String stripeSecret;
-
-	public String handleCreateSession() throws StripeException {
-		Stripe.apiKey = stripeSecret;
-
-		SessionCreateParams params = SessionCreateParams.builder().setCancelUrl("https://facebook.com")
-				.setSuccessUrl("https://google.com")
-				.addLineItem(SessionCreateParams.LineItem.builder()
-						.setPriceData(PriceData.builder().setCurrency("gbp").setUnitAmount(1000l).setProductData(com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData.ProductData.builder().setName("EVNT").build()).build())
-						.setQuantity(1L).build())
-				.setMode(SessionCreateParams.Mode.PAYMENT).build();
-		Session session = Session.create(params);
-		System.out.println(session);
-		return session.getUrl();
-	}
-
 	public Event addEvent(EventDto eventDto) throws EventAlreadyExistsException, UserDoesNotExistException {
 		if (eventRepo.existsById(eventDto.getId())) {
 			throw new EventAlreadyExistsException();
