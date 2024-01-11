@@ -11,11 +11,17 @@ public class SessionWithUser {
 	private String sessionId;
 	@ManyToOne(optional = false)
 	private User user;
+	@ManyToOne(optional = false)
+	private Event event;
 
-	public SessionWithUser(String sessionId, User user) {
+	public SessionWithUser() {
+	}
+
+	public SessionWithUser(String sessionId, User user, Event event) {
 		super();
 		this.sessionId = sessionId;
 		this.user = user;
+		this.event = event;
 	}
 
 	public String getId() {
@@ -32,6 +38,22 @@ public class SessionWithUser {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
+
+	public Event getEvent() {
+		return event;
+	}
+
+	public void setEvent(Event event) {
+		this.event = event;
 	}
 
 }

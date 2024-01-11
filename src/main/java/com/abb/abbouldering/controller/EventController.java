@@ -53,10 +53,10 @@ public class EventController {
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.getTopEvents());
 	}
 	
-	@GetMapping("/all/session")
-	public ResponseEntity<String> createSession() throws StripeException{
-		return ResponseEntity.ok(eventService.handleCreateSession());
-	}
+//	@GetMapping("/all/session")
+//	public ResponseEntity<String> createSession() throws StripeException{
+//		return ResponseEntity.ok(eventService.handleCreateSession());
+//	}
 	
 	@PutMapping
 	public ResponseEntity<EventDto> handleEditEvent(@RequestBody EventDto eventDto) throws EventDoesNotExistException, UserDoesNotExistException{
