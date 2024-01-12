@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.abb.abbouldering.exception.EventDoesNotExistException;
+import com.abb.abbouldering.exception.UserDoesNotExistException;
+import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEvent;
 import com.abb.abbouldering.model.Event;
 import com.abb.abbouldering.model.SessionWithUser;
 import com.abb.abbouldering.model.User;
@@ -14,6 +16,7 @@ import com.abb.abbouldering.repository.EventRepository;
 import com.abb.abbouldering.repository.SessionWithUserRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
+import com.stripe.model.StripeObject;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData;
@@ -27,6 +30,9 @@ public class StripeService {
 	@Autowired
 	private EventRepository eventRepo;
 
+	@Autowired
+	private EventService eventSerivce;
+	
 	@Value("${stripe.secret}")
 	private String stripeSecret;
 
@@ -52,6 +58,31 @@ public class StripeService {
 		Session session = Session.create(params);
 		sessionRepo.save(new SessionWithUser(session.getId(), user, event));
 		return session.getUrl();
+	}
+
+	public void handleStripeEvent(com.stripe.model.Event stripeEvent) throws UserDoesNotExistException, EventDoesNotExistException, UserIsAlreadySignedUpForEvent {
+		if(!"checkout.session.completed".equals(stripeEvent.getType())) {
+			return;
+		}
+		
+		Optional<StripeObject> optionalSession = stripeEvent.getDataObjectDeserializer().getObject();
+		
+		if(optionalSession.isEmpty()) {
+			System.out.println("getDataObjectDerserializer is empty");
+			throw new UserDoesNotExistException();
+		}
+		
+		Session checkoutSession = (Session) optionalSession.get();
+		
+		Optional<SessionWithUser> optionalSessionData = sessionRepo.findById(checkoutSession.getId());
+		if(optionalSessionData.isEmpty()) {
+			System.out.println("cant find sessionWithUser with id " + checkoutSession.getId());
+			throw new UserDoesNotExistException();
+		}
+		
+		SessionWithUser sessionData = optionalSessionData.get();
+		eventSerivce.addUserToEvent(sessionData.getUser(), sessionData.getEvent().getId());
+		
 	}
 
 }

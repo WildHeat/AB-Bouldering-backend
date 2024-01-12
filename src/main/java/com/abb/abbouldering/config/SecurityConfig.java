@@ -31,7 +31,7 @@ public class SecurityConfig {
 		.cors(Customizer.withDefaults())
 		.authorizeHttpRequests(
 				authorize -> authorize
-					.requestMatchers("/api/v1/auth/**", "/api/v1/events/all", "/api/v1/stripe/all/**","/api/v1/events/all/**", "/api/v1/mail", "/api/v1/stripe")
+					.requestMatchers("/api/v1/auth/**", "/api/v1/events/all", "/api/v1/stripe/**","/api/v1/events/all/**", "/api/v1/mail", "/api/v1/stripe")
 					.permitAll()
 					.requestMatchers("/api/v1/events/user/**")
 					.hasAnyAuthority("USER", "ADMIN")
