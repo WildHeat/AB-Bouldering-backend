@@ -7,10 +7,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.abb.abbouldering.exception.EventDoesNotExistException;
+import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEvent;
 import com.abb.abbouldering.model.User;
@@ -31,9 +33,10 @@ public class StripeController {
 	}
 	
 	@PostMapping("/event")
-	public ResponseEntity handleNewEventNotification(@RequestBody Event stripeEvent) throws UserDoesNotExistException, EventDoesNotExistException, UserIsAlreadySignedUpForEvent {
+	public ResponseEntity handleNewEventNotification(@RequestBody String requestBody, @RequestHeader("Stripe-Signature") String stripeSignature) throws UserDoesNotExistException, EventDoesNotExistException, UserIsAlreadySignedUpForEvent, InvalidCredentialsException {
 //		System.out.println(stripeEvent);
-		stripeService.handleStripeEvent(stripeEvent);
+		stripeService.handleStripeEvent(requestBody, stripeSignature);
+//		System.out.println(stripeEvent);
 		return ResponseEntity.ok().build();
 	}
 }

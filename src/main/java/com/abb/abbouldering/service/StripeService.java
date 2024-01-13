@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.abb.abbouldering.exception.EventDoesNotExistException;
+import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEvent;
 import com.abb.abbouldering.model.Event;
@@ -15,9 +16,13 @@ import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.repository.EventRepository;
 import com.abb.abbouldering.repository.SessionWithUserRepository;
 import com.stripe.Stripe;
+import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
+import com.stripe.model.Event.Data;
+import com.stripe.model.EventDataObjectDeserializer;
 import com.stripe.model.StripeObject;
 import com.stripe.model.checkout.Session;
+import com.stripe.net.Webhook;
 import com.stripe.param.checkout.SessionCreateParams;
 import com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData;
 
@@ -60,28 +65,40 @@ public class StripeService {
 		return session.getUrl();
 	}
 
-	public void handleStripeEvent(com.stripe.model.Event stripeEvent) throws UserDoesNotExistException, EventDoesNotExistException, UserIsAlreadySignedUpForEvent {
-		if(!"checkout.session.completed".equals(stripeEvent.getType())) {
+	public void handleStripeEvent(String requestBody, String stripeSig) throws InvalidCredentialsException, EventDoesNotExistException, UserIsAlreadySignedUpForEvent{
+		String endpointSecret = "whsec_7df678820f055122c87505e616d0aafe2c79b0a6d1cbcbfa2c797d74ef320c7e";
+		com.stripe.model.Event event = null;
+		
+		try {
+            event = Webhook.constructEvent(
+            		requestBody, stripeSig, endpointSecret
+            );
+        } catch (SignatureVerificationException e) {
+        	throw new InvalidCredentialsException("Did this come from stripe?");
+        }
+		
+		
+		if(!"checkout.session.completed".equals(event.getType())) {
 			return;
 		}
 		
-		Optional<StripeObject> optionalSession = stripeEvent.getDataObjectDeserializer().getObject();
-		
-		if(optionalSession.isEmpty()) {
-			System.out.println("getDataObjectDerserializer is empty");
-			throw new UserDoesNotExistException();
+		EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
+		Session checkoutSession = null;
+		if (dataObjectDeserializer.getObject().isPresent()) {
+			checkoutSession = (Session) dataObjectDeserializer.getObject().get();
+		} else {
+			System.out.println("API MISSMATCH!");
 		}
-		
-		Session checkoutSession = (Session) optionalSession.get();
 		
 		Optional<SessionWithUser> optionalSessionData = sessionRepo.findById(checkoutSession.getId());
 		if(optionalSessionData.isEmpty()) {
 			System.out.println("cant find sessionWithUser with id " + checkoutSession.getId());
-			throw new UserDoesNotExistException();
+			return;
 		}
 		
 		SessionWithUser sessionData = optionalSessionData.get();
 		eventSerivce.addUserToEvent(sessionData.getUser(), sessionData.getEvent().getId());
+		
 		
 	}
 
