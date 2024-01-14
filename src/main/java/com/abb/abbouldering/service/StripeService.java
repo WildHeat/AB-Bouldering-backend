@@ -51,6 +51,11 @@ public class StripeService {
 		
 		if(eventService.isUserAlreadyInEvent(user, event)) throw new UserIsAlreadySignedUpForEventException();
 		
+		if(event.getPrice() <= 0) {
+			eventService.addUserToEvent(user, eventId);
+			return null;
+		}
+		
 		Stripe.apiKey = stripeSecret;
 
 		SessionCreateParams params = SessionCreateParams.builder()
