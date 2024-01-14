@@ -19,7 +19,7 @@ import com.abb.abbouldering.dto.EventDto;
 import com.abb.abbouldering.exception.EventAlreadyExistsException;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
-import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEvent;
+import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEventException;
 import com.abb.abbouldering.model.Event;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.service.EventService;
@@ -65,7 +65,7 @@ public class EventController {
 	}
 	
 	@GetMapping("/user/add-user/{id}")
-	public ResponseEntity<EventDto> addUserToEvent(@AuthenticationPrincipal User user, @PathVariable long id) throws EventDoesNotExistException, UserIsAlreadySignedUpForEvent{
+	public ResponseEntity<EventDto> addUserToEvent(@AuthenticationPrincipal User user, @PathVariable long id) throws EventDoesNotExistException, UserIsAlreadySignedUpForEventException{
 		return ResponseEntity.status(HttpStatus.OK).body(eventService.addUserToEvent(user, id));
 	}
 	

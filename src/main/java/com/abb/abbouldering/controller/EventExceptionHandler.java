@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.abb.abbouldering.exception.EventAlreadyExistsException;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
-import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEvent;
+import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEventException;
 
 @ControllerAdvice
 public class EventExceptionHandler {
@@ -22,8 +22,8 @@ public class EventExceptionHandler {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 	}
 	
-	@ExceptionHandler(value = UserIsAlreadySignedUpForEvent.class)
-	public ResponseEntity<String> handleUserIsAlreadySignedUpForEventException(UserIsAlreadySignedUpForEvent e){
+	@ExceptionHandler(value = UserIsAlreadySignedUpForEventException.class)
+	public ResponseEntity<String> handleUserIsAlreadySignedUpForEventException(UserIsAlreadySignedUpForEventException e){
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 	} 
 }

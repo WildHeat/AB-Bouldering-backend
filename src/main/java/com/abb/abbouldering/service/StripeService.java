@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
-import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEvent;
+import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEventException;
 import com.abb.abbouldering.model.Event;
 import com.abb.abbouldering.model.SessionWithUser;
 import com.abb.abbouldering.model.User;
@@ -36,18 +36,20 @@ public class StripeService {
 	private EventRepository eventRepo;
 
 	@Autowired
-	private EventService eventSerivce;
+	private EventService eventService;
 	
 	@Value("${stripe.secret}")
 	private String stripeSecret;
 
-	public String handleCreateCheckoutSession(User user, long eventId) throws StripeException, EventDoesNotExistException {
+	public String handleCreateCheckoutSession(User user, long eventId) throws StripeException, EventDoesNotExistException, UserIsAlreadySignedUpForEventException {
 		
 		Optional<Event> optionalEvent = eventRepo.findById(eventId);
 		
 		if(optionalEvent.isEmpty()) throw new EventDoesNotExistException();
 		
 		Event event = optionalEvent.get();
+		
+		if(eventService.isUserAlreadyInEvent(user, event)) throw new UserIsAlreadySignedUpForEventException();
 		
 		Stripe.apiKey = stripeSecret;
 
@@ -65,7 +67,7 @@ public class StripeService {
 		return session.getUrl();
 	}
 
-	public void handleStripeEvent(String requestBody, String stripeSig) throws InvalidCredentialsException, EventDoesNotExistException, UserIsAlreadySignedUpForEvent{
+	public void handleStripeEvent(String requestBody, String stripeSig) throws InvalidCredentialsException, EventDoesNotExistException, UserIsAlreadySignedUpForEventException{
 		String endpointSecret = "whsec_7df678820f055122c87505e616d0aafe2c79b0a6d1cbcbfa2c797d74ef320c7e";
 		com.stripe.model.Event event = null;
 		
@@ -97,7 +99,7 @@ public class StripeService {
 		}
 		
 		SessionWithUser sessionData = optionalSessionData.get();
-		eventSerivce.addUserToEvent(sessionData.getUser(), sessionData.getEvent().getId());
+		eventService.addUserToEvent(sessionData.getUser(), sessionData.getEvent().getId());
 		
 		
 	}

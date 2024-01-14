@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
-import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEvent;
+import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEventException;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.service.StripeService;
 import com.stripe.exception.StripeException;
@@ -28,12 +28,12 @@ public class StripeController {
 	private StripeService stripeService;
 	
 	@GetMapping("/all/{id}")
-	public ResponseEntity<String> addUserToEvent(@AuthenticationPrincipal User user, @PathVariable long id) throws StripeException, EventDoesNotExistException{
+	public ResponseEntity<String> addUserToEvent(@AuthenticationPrincipal User user, @PathVariable long id) throws StripeException, EventDoesNotExistException, UserIsAlreadySignedUpForEventException{
 		return ResponseEntity.ok(stripeService.handleCreateCheckoutSession(user, id));		
 	}
 	
 	@PostMapping("/event")
-	public ResponseEntity handleNewEventNotification(@RequestBody String requestBody, @RequestHeader("Stripe-Signature") String stripeSignature) throws UserDoesNotExistException, EventDoesNotExistException, UserIsAlreadySignedUpForEvent, InvalidCredentialsException {
+	public ResponseEntity handleNewEventNotification(@RequestBody String requestBody, @RequestHeader("Stripe-Signature") String stripeSignature) throws UserDoesNotExistException, EventDoesNotExistException, UserIsAlreadySignedUpForEventException, InvalidCredentialsException {
 //		System.out.println(stripeEvent);
 		stripeService.handleStripeEvent(requestBody, stripeSignature);
 //		System.out.println(stripeEvent);
