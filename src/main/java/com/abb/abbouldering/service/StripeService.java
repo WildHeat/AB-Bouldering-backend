@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
 import com.abb.abbouldering.exception.EventIsFullyBookedException;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
+import com.abb.abbouldering.exception.InvalidEmailException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEventException;
 import com.abb.abbouldering.model.Event;
@@ -43,13 +44,13 @@ public class StripeService {
 	private String stripeSecret;
 
 	public String handleCreateCheckoutSession(User user, long eventId) throws StripeException,
-			EventDoesNotExistException, UserIsAlreadySignedUpForEventException, EventIsFullyBookedException {
+			EventDoesNotExistException, UserIsAlreadySignedUpForEventException, EventIsFullyBookedException, InvalidEmailException {
 		Optional<Event> optionalEvent = eventRepo.findById(eventId);
 		if (optionalEvent.isEmpty())
 			throw new EventDoesNotExistException();
-		
+
 		Event event = optionalEvent.get();
-		
+
 		if (event.getPrice() <= 0) {
 			eventService.addUserToEvent(user, event);
 			return null;
@@ -78,7 +79,8 @@ public class StripeService {
 	}
 
 	public void handleStripeEvent(String requestBody, String stripeSig)
-			throws InvalidCredentialsException, EventDoesNotExistException, UserIsAlreadySignedUpForEventException, EventIsFullyBookedException {
+			throws InvalidCredentialsException, EventDoesNotExistException, UserIsAlreadySignedUpForEventException,
+			EventIsFullyBookedException, InvalidEmailException {
 		String endpointSecret = "whsec_7df678820f055122c87505e616d0aafe2c79b0a6d1cbcbfa2c797d74ef320c7e";
 		com.stripe.model.Event event = null;
 
@@ -88,7 +90,8 @@ public class StripeService {
 			throw new InvalidCredentialsException("Did this come from stripe?");
 		}
 
-		if (!"checkout.session.completed".equals(event.getType())) {
+		if (!"checkout.session.completed".equals(event.getType())
+				&& !"checkout.session.expired".equals(event.getType())) {
 			return;
 		}
 
@@ -107,7 +110,11 @@ public class StripeService {
 		}
 
 		SessionWithUser sessionData = optionalSessionData.get();
-		eventService.addUserToEvent(sessionData.getUser(), sessionData.getEvent());
+		if ("checkout.session.completed".equals(event.getType())) {
+			eventService.addUserToEvent(sessionData.getUser(), sessionData.getEvent());
+		} else {
+			sessionRepo.deleteById(sessionData.getId());
+		}
 
 	}
 

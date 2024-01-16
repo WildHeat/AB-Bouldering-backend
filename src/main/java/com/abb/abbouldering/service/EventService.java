@@ -12,6 +12,7 @@ import com.abb.abbouldering.dto.EventDto;
 import com.abb.abbouldering.exception.EventAlreadyExistsException;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
 import com.abb.abbouldering.exception.EventIsFullyBookedException;
+import com.abb.abbouldering.exception.InvalidEmailException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEventException;
 import com.abb.abbouldering.model.Event;
@@ -35,6 +36,9 @@ public class EventService {
 	@Autowired
 	private UserRepository userRepo;
 
+	@Autowired
+	private MailSenderService mailService;
+	
 	public Event addEvent(EventDto eventDto) throws EventAlreadyExistsException, UserDoesNotExistException {
 		if (eventRepo.existsById(eventDto.getId())) {
 			throw new EventAlreadyExistsException();
@@ -79,7 +83,7 @@ public class EventService {
 	}
 
 	public EventDto addUserToEvent(User user, Event event)
-			throws EventDoesNotExistException, UserIsAlreadySignedUpForEventException, EventIsFullyBookedException {
+			throws EventDoesNotExistException, UserIsAlreadySignedUpForEventException, EventIsFullyBookedException, InvalidEmailException {
 		
 		if (event.getClimbers().size() >= event.getMaxSize()) {
 			throw new EventIsFullyBookedException();
@@ -88,7 +92,9 @@ public class EventService {
 			throw new UserIsAlreadySignedUpForEventException();
 		}
 		event.addUserToEvent(user);
-		return new EventDto(eventRepo.save(event));
+		EventDto eventDto = new EventDto(eventRepo.save(event));
+		mailService.sendBookingConfirmationEmail(user, event);
+		return eventDto;
 	}
 
 	public boolean isUserAlreadyInEvent(User user, Event event) {

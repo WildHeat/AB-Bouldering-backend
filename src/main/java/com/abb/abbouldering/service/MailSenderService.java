@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.exception.InvalidEmailException;
+import com.abb.abbouldering.model.Event;
+import com.abb.abbouldering.model.User;
 
 @Service
 public class MailSenderService {
@@ -33,6 +35,18 @@ public class MailSenderService {
 		message.setTo(toEmail);
 		message.setText(body + "\n\nWe will get back to you as soon as possible! Thank you "+ name);
 		message.setSubject(subject);
+		mailSender.send(message);
+	}
+	
+	public void sendBookingConfirmationEmail(User receiver, Event event) throws InvalidEmailException {
+		if(receiver == null || event == null) {
+			throw new InvalidEmailException("User and event cannot be null");
+		}
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setFrom("lowid11@googlemail.com");
+		message.setTo(receiver.getEmail());
+		message.setSubject("Booking Confirmation: " + event.getTitle());
+		message.setText("\nThank you for booking the event: " + event.getTitle() + "\n\nIt will be at "+ event.getDate() + "\n\nThank you.");
 		mailSender.send(message);
 	}
 }
