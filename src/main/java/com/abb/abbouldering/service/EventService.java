@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.abb.abbouldering.dto.EventDto;
 import com.abb.abbouldering.exception.EventAlreadyExistsException;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
+import com.abb.abbouldering.exception.EventIsFullyBookedException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEventException;
 import com.abb.abbouldering.model.Event;
@@ -77,13 +78,12 @@ public class EventService {
 		return eventsDto;
 	}
 
-	public EventDto addUserToEvent(User user, long id)
-			throws EventDoesNotExistException, UserIsAlreadySignedUpForEventException {
-		Optional<Event> optionalEvent = eventRepo.findById(id);
-		if (optionalEvent.isEmpty()) {
-			throw new EventDoesNotExistException();
+	public EventDto addUserToEvent(User user, Event event)
+			throws EventDoesNotExistException, UserIsAlreadySignedUpForEventException, EventIsFullyBookedException {
+		
+		if (event.getClimbers().size() >= event.getMaxSize()) {
+			throw new EventIsFullyBookedException();
 		}
-		Event event = optionalEvent.get();
 		if (isUserAlreadyInEvent(user, event)) {
 			throw new UserIsAlreadySignedUpForEventException();
 		}

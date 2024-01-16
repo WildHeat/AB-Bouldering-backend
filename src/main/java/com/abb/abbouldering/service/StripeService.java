@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.abb.abbouldering.exception.EventDoesNotExistException;
+import com.abb.abbouldering.exception.EventIsFullyBookedException;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEventException;
@@ -37,32 +38,36 @@ public class StripeService {
 
 	@Autowired
 	private EventService eventService;
-	
+
 	@Value("${stripe.secret}")
 	private String stripeSecret;
 
-	public String handleCreateCheckoutSession(User user, long eventId) throws StripeException, EventDoesNotExistException, UserIsAlreadySignedUpForEventException {
-		
+	public String handleCreateCheckoutSession(User user, long eventId) throws StripeException,
+			EventDoesNotExistException, UserIsAlreadySignedUpForEventException, EventIsFullyBookedException {
 		Optional<Event> optionalEvent = eventRepo.findById(eventId);
-		
-		if(optionalEvent.isEmpty()) throw new EventDoesNotExistException();
+		if (optionalEvent.isEmpty())
+			throw new EventDoesNotExistException();
 		
 		Event event = optionalEvent.get();
 		
-		if(eventService.isUserAlreadyInEvent(user, event)) throw new UserIsAlreadySignedUpForEventException();
-		
-		if(event.getPrice() <= 0) {
-			eventService.addUserToEvent(user, eventId);
+		if (event.getPrice() <= 0) {
+			eventService.addUserToEvent(user, event);
 			return null;
 		}
-		
+
+		if (eventService.isUserAlreadyInEvent(user, event))
+			throw new UserIsAlreadySignedUpForEventException();
+
+		if (event.getClimbers().size() >= event.getMaxSize()) {
+			throw new EventIsFullyBookedException();
+		}
+
 		Stripe.apiKey = stripeSecret;
 
-		SessionCreateParams params = SessionCreateParams.builder()
-				.setCancelUrl("https://facebook.com")
+		SessionCreateParams params = SessionCreateParams.builder().setCancelUrl("https://facebook.com")
 				.setSuccessUrl("https://google.com")
 				.addLineItem(SessionCreateParams.LineItem.builder().setPriceData(PriceData.builder().setCurrency("gbp")
-						.setUnitAmount(Math.round(event.getPrice()*100))
+						.setUnitAmount(Math.round(event.getPrice() * 100))
 						.setProductData(com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData.ProductData
 								.builder().setName(event.getTitle()).build())
 						.build()).setQuantity(1L).build())
@@ -72,23 +77,21 @@ public class StripeService {
 		return session.getUrl();
 	}
 
-	public void handleStripeEvent(String requestBody, String stripeSig) throws InvalidCredentialsException, EventDoesNotExistException, UserIsAlreadySignedUpForEventException{
+	public void handleStripeEvent(String requestBody, String stripeSig)
+			throws InvalidCredentialsException, EventDoesNotExistException, UserIsAlreadySignedUpForEventException, EventIsFullyBookedException {
 		String endpointSecret = "whsec_7df678820f055122c87505e616d0aafe2c79b0a6d1cbcbfa2c797d74ef320c7e";
 		com.stripe.model.Event event = null;
-		
+
 		try {
-            event = Webhook.constructEvent(
-            		requestBody, stripeSig, endpointSecret
-            );
-        } catch (SignatureVerificationException e) {
-        	throw new InvalidCredentialsException("Did this come from stripe?");
-        }
-		
-		
-		if(!"checkout.session.completed".equals(event.getType())) {
+			event = Webhook.constructEvent(requestBody, stripeSig, endpointSecret);
+		} catch (SignatureVerificationException e) {
+			throw new InvalidCredentialsException("Did this come from stripe?");
+		}
+
+		if (!"checkout.session.completed".equals(event.getType())) {
 			return;
 		}
-		
+
 		EventDataObjectDeserializer dataObjectDeserializer = event.getDataObjectDeserializer();
 		Session checkoutSession = null;
 		if (dataObjectDeserializer.getObject().isPresent()) {
@@ -96,17 +99,16 @@ public class StripeService {
 		} else {
 			System.out.println("API MISSMATCH!");
 		}
-		
+
 		Optional<SessionWithUser> optionalSessionData = sessionRepo.findById(checkoutSession.getId());
-		if(optionalSessionData.isEmpty()) {
+		if (optionalSessionData.isEmpty()) {
 			System.out.println("cant find sessionWithUser with id " + checkoutSession.getId());
 			return;
 		}
-		
+
 		SessionWithUser sessionData = optionalSessionData.get();
-		eventService.addUserToEvent(sessionData.getUser(), sessionData.getEvent().getId());
-		
-		
+		eventService.addUserToEvent(sessionData.getUser(), sessionData.getEvent());
+
 	}
 
 }

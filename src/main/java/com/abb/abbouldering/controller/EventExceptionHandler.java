@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.abb.abbouldering.exception.EventAlreadyExistsException;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
+import com.abb.abbouldering.exception.EventIsFullyBookedException;
 import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEventException;
 
 @ControllerAdvice
@@ -26,4 +27,9 @@ public class EventExceptionHandler {
 	public ResponseEntity<String> handleUserIsAlreadySignedUpForEventException(UserIsAlreadySignedUpForEventException e){
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 	} 
+	
+	@ExceptionHandler(value = EventIsFullyBookedException.class)
+	public ResponseEntity<String> handleEventIsFullyBookedException(EventIsFullyBookedException e){
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+	}
 }
