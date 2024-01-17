@@ -42,6 +42,7 @@ public class MailSenderService {
 		if(receiver == null || event == null) {
 			throw new InvalidEmailException("User and event cannot be null");
 		}
+		System.out.println("Sending email to - " + receiver.getEmail());
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setFrom("lowid11@googlemail.com");
 		message.setTo(receiver.getEmail());
@@ -49,4 +50,4 @@ public class MailSenderService {
 		message.setText("\nThank you for booking the event: " + event.getTitle() + "\n\nIt will be at "+ event.getDate() + "\n\nThank you.");
 		mailSender.send(message);
 	}
-}
+}	

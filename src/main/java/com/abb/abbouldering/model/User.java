@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -30,6 +31,7 @@ public class User implements UserDetails {
 	private String firstName;
 	@NotBlank(message = "Last name can not be blank")
 	private String lastName;
+	@Column(unique=true)
 	@NotBlank(message = "Email can not be blank")
 	private String email;
 	@NotBlank(message = "Password can not be blank")

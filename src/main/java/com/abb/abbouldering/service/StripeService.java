@@ -53,7 +53,7 @@ public class StripeService {
 
 		if (event.getPrice() <= 0) {
 			eventService.addUserToEvent(user, event);
-			return null;
+			return "";
 		}
 
 		if (eventService.isUserAlreadyInEvent(user, event))
@@ -65,7 +65,8 @@ public class StripeService {
 
 		Stripe.apiKey = stripeSecret;
 
-		SessionCreateParams params = SessionCreateParams.builder().setCancelUrl("https://facebook.com")
+		SessionCreateParams params = SessionCreateParams.builder()
+//				.setCancelUrl("https://facebook.com")
 				.setSuccessUrl("https://google.com")
 				.addLineItem(SessionCreateParams.LineItem.builder().setPriceData(PriceData.builder().setCurrency("gbp")
 						.setUnitAmount(Math.round(event.getPrice() * 100))
