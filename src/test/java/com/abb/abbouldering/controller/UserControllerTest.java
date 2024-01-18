@@ -25,6 +25,7 @@ class UserControllerTest {
 	void testingsomething() {
 //		assertThat(this.restTemplate.getForObject("http://localhost:8080/api/v1/events/all",
 //				String.class)).contains("Hello, World");
+		
 	}
 
 }
