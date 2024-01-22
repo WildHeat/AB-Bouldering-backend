@@ -2,6 +2,7 @@ package com.abb.abbouldering.model;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.abb.abbouldering.dto.EventDto;
@@ -51,6 +52,20 @@ public class Event {
 	private String imageUrl;
 
 	public Event() {
+	}
+
+	public Event(@NotBlank String title, String smallDescription, @NotBlank String description, @Min(0) double price,
+			@Min(1) @Max(100) int maxSize, LocalDateTime date, User organiser, String imageUrl) {
+		super();
+		this.title = title;
+		this.smallDescription = smallDescription;
+		this.description = description;
+		this.price = price;
+		this.maxSize = maxSize;
+		this.date = date;
+		this.organiser = organiser;
+		this.imageUrl = imageUrl;
+		this.users = new ArrayList<User>();
 	}
 
 	public Event(long id, @NotBlank String title, String smallDescription, @NotBlank String description,
