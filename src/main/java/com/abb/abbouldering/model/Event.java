@@ -1,11 +1,8 @@
 package com.abb.abbouldering.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.abb.abbouldering.dto.EventDto;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -69,8 +66,8 @@ public class Event {
 	}
 
 	public Event(long id, @NotBlank String title, String smallDescription, @NotBlank String description,
-			@Min(0) double price, @Min(1) @Max(100) int maxSize, LocalDateTime date, User organiser,
-			List<User> users, String imageUrl) {
+			@Min(0) double price, @Min(1) @Max(100) int maxSize, LocalDateTime date, User organiser, List<User> users,
+			String imageUrl) {
 		super();
 		this.id = id;
 		this.title = title;
