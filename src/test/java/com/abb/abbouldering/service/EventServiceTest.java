@@ -50,6 +50,9 @@ class EventServiceTest {
 	private User user2;
 	private User organiser;
 	private Event event;
+	private Event event2;
+	private Event event3;
+	private Event event4;
 	private EventDto eventDto;
 
 	@Test
@@ -63,6 +66,12 @@ class EventServiceTest {
 		this.organiser = new UserBuilder().email("email@email.com").password("Password123").role(Role.ADMIN)
 				.firstName("first").lastName("last").build();
 		this.event = new Event("Event", "smallDescription", "description", 10.0, 10, LocalDateTime.now(), organiser,
+				"imageUrl");
+		this.event2 = new Event("Event2", "smallDescription", "description", 10.0, 10, LocalDateTime.now(), organiser,
+				"imageUrl");
+		this.event3 = new Event("Event3", "smallDescription", "description", 10.0, 10, LocalDateTime.now(), organiser,
+				"imageUrl");
+		this.event4 = new Event("Event4", "smallDescription", "description", 10.0, 10, LocalDateTime.now(), organiser,
 				"imageUrl");
 		this.eventDto = new EventDto(event);
 		this.user1 = new UserBuilder().email("user@email.com").password("Password123").role(Role.USER)
@@ -165,5 +174,43 @@ class EventServiceTest {
 		event.addUserToEvent(user1);
 		assertThrows(UserIsAlreadySignedUpForEventException.class, () -> eventService.addUserToEvent(user1, event));
 	}
+	
+	@Test
+	void testEventService_getMyEvents_returnsListOfBookedEvents() {
+		event.addUserToEvent(user1);
+		List<Event> eventList = new ArrayList<Event>();
+		eventList.add(event);
+		user1.setEvents(eventList);
+		
+		List<EventDto> listOfUsersEvents = eventService.getMyEvents(user1);
+		assertEquals(1, listOfUsersEvents.size());
+	}	
+	
+	@Test
+	void testEventService_getMyEvents_returnsListOfEventsThatTheAdminIsOrganiser() {
+		List<Event> eventList = new ArrayList<Event>();
+		eventList.add(event);
+		
+		when(mockEventRepo.findByOrganiser(organiser)).thenReturn(eventList);	
+		user1.setEvents(eventList);
+		
+		List<EventDto> listOfUsersEvents = eventService.getMyEvents(organiser);
+		assertEquals(1, listOfUsersEvents.size());
+	}
+	
+	@Test
+	void testEventService_getTopEvents_returnsTop4EventDtosBasedOnDateDesc() {
+		List<Event> eventList = new ArrayList<Event>();
+		eventList.add(event);
+		eventList.add(event2);
+		eventList.add(event3);
+		eventList.add(event4);
+		
+		when(mockEventRepo.findFirst4ByOrderByDateDesc()).thenReturn(eventList);			
+		List<EventDto> topEvents = eventService.getTopEvents();
+		assertEquals(4, topEvents.size());
+	}
+	
+	
 
 }

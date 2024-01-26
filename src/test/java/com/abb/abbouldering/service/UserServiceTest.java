@@ -7,10 +7,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import org.assertj.core.util.Arrays;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -39,12 +39,29 @@ class UserServiceTest {
 
 	@InjectMocks
 	private UserService userSerivce;
+	
+	private User user;
+	private User user2;
+	private User admin1;
+	private User admin2;
+	private EditUserDto editUser;
+	
+	@BeforeEach
+	void init() {
+		user = new UserBuilder().email("test@email.com").password("Password123").firstName("test")
+				.lastName("lastname").build();
+		user2 = new UserBuilder().email("email2@email.com").password("1Password123").role(Role.ADMIN)
+				.firstName("1first").lastName("1last").build();
+		admin1 = new UserBuilder().email("email@email.com").password("Password123").role(Role.ADMIN)
+				.firstName("first").lastName("last").build();
+		admin2 = new UserBuilder().email("email2@email.com").password("Password123").role(Role.ADMIN)
+				.firstName("first2").lastName("last2").build();
+		editUser = new EditUserDto(user.getId(), "changeFirst", "ChangeSecond", user.getEmail(), null,
+				user.getPassword());
+	}
 
 	@Test
 	void testUserService_deleteUser_validUserIDCallsUserRepoDeleteById() throws UserDoesNotExistException {
-		User user = new UserBuilder().email("test@email.com").password("Password123").firstName("test")
-				.lastName("lastname").build();
-
 		when(mockUserRepo.existsById(Mockito.anyLong())).thenReturn(true);
 		userSerivce.deleteUser(user.getId());
 		verify(mockUserRepo).deleteById(user.getId());
@@ -58,9 +75,6 @@ class UserServiceTest {
 
 	@Test
 	void testUserService_getUserById_validUserIdReturnsUser() throws UserDoesNotExistException {
-		User user = new UserBuilder().email("test@email.com").password("Password123").firstName("test")
-				.lastName("lastname").build();
-
 		when(mockUserRepo.findById(Mockito.anyLong())).thenReturn(Optional.of(user));
 		User foundUser = userSerivce.getUserById(user.getId());
 		assertThat(foundUser).isNotNull();
@@ -74,13 +88,6 @@ class UserServiceTest {
 
 	@Test
 	void testUserService_getAllAdminNames_callsUserRepoFindByRole() {
-
-		User admin1 = new UserBuilder().email("email@email.com").password("Password123").role(Role.ADMIN)
-				.firstName("first").lastName("last").build();
-
-		User admin2 = new UserBuilder().email("email2@email.com").password("Password123").role(Role.ADMIN)
-				.firstName("first2").lastName("last2").build();
-
 		User[] admins = { admin1, admin2 };
 		ArrayList<User> adminList = new ArrayList(Arrays.asList(admins));
 
@@ -116,13 +123,6 @@ class UserServiceTest {
 
 	@Test
 	void testUserService_editUser_returnsUpdatedUser() throws UserDoesNotExistException, InvalidCredentialsException {
-
-		User user = new UserBuilder().email("email@email.com").password("Password123").role(Role.ADMIN)
-				.firstName("first").lastName("last").build();
-
-		EditUserDto editUser = new EditUserDto(user.getId(), "changeFirst", "ChangeSecond", user.getEmail(), null,
-				user.getPassword());
-
 		when(mockUserRepo.findByEmailIgnoreCase(Mockito.anyString())).thenReturn(Optional.of(user));
 		when(mockPasswordEncoder.matches(Mockito.anyString(), Mockito.anyString())).thenReturn(true);
 
@@ -150,10 +150,6 @@ class UserServiceTest {
 
 	@Test
 	void testUserService_editUser_emptyFirstNameThrowsException() throws UserDoesNotExistException, InvalidCredentialsException {
-
-		User user = new UserBuilder().email("email@email.com").password("Password123").role(Role.ADMIN)
-				.firstName("first").lastName("last").build();
-
 		EditUserDto editUser = new EditUserDto(user.getId(), "", "ChangeSecond", user.getEmail(), null,
 				user.getPassword());
 
@@ -165,10 +161,6 @@ class UserServiceTest {
 
 	@Test
 	void testUserService_editUser_emptyLastNameThrowsException() throws UserDoesNotExistException, InvalidCredentialsException {
-		
-		User user = new UserBuilder().email("email@email.com").password("Password123").role(Role.ADMIN)
-				.firstName("first").lastName("last").build();
-		
 		EditUserDto editUser = new EditUserDto(user.getId(), "changeFirst", "", user.getEmail(), null,
 				user.getPassword());
 		
@@ -180,10 +172,6 @@ class UserServiceTest {
 
 	@Test
 	void testUserService_editUser_invalidNewPasswordThrowsException() throws UserDoesNotExistException, InvalidCredentialsException {
-		
-		User user = new UserBuilder().email("email@email.com").password("Password123").role(Role.ADMIN)
-				.firstName("first").lastName("last").build();
-		
 		EditUserDto editUser = new EditUserDto(user.getId(), "changeFirst", "", user.getEmail(), "password",
 				user.getPassword());
 		

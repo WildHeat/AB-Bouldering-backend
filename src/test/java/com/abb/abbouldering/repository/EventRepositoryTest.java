@@ -1,14 +1,13 @@
 package com.abb.abbouldering.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
@@ -19,11 +18,6 @@ import com.abb.abbouldering.model.Event;
 import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.model.UserBuilder;
-import com.mysql.cj.x.protobuf.MysqlxDatatypes.Array;
-
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
@@ -34,6 +28,24 @@ class EventRepositoryTest {
 	
 	@Autowired
 	private UserRepository userRepo;
+	
+	private User organiser; 
+	private Event event;
+	
+	@BeforeEach
+	void init() {
+		organiser = new UserBuilder()
+				.email("email@email.com")
+				.password("Password123")
+				.role(Role.ADMIN)
+				.firstName("first")
+				.lastName("last")
+				.build();
+		userRepo.save(organiser);	
+		event = new Event("title", "smallDescription", "description", 23.0, 1, LocalDateTime.now(), organiser, "imageUrl");
+
+
+	}
 
 	@Test
 	void testEventRepository_isNotNull() {
@@ -42,16 +54,6 @@ class EventRepositoryTest {
 	
 	@Test
 	void testEventRepository_save_createsNewEvent(){
-		User organiser = new UserBuilder()
-				.email("email@email.com")
-				.password("Password123")
-				.role(Role.ADMIN)
-				.firstName("first")
-				.lastName("last")
-				.build();
-		
-		userRepo.save(organiser);	
-		Event event = new Event("title", "smallDescription", "description", 23.0, 1, LocalDateTime.now(), organiser, "imageUrl");
 	
 		Event savedEvent = eventRepo.save(event);
 		
@@ -59,18 +61,7 @@ class EventRepositoryTest {
 	}
 		
 	@Test
-	void testEventRepository_deleteById_deletesEvent(){
-		User organiser = new UserBuilder()
-				.email("email@email.com")
-				.password("Password123")
-				.role(Role.ADMIN)
-				.firstName("first")
-				.lastName("last")
-				.build();
-		
-		userRepo.save(organiser);	
-		Event event = new Event("title", "smallDescription", "description", 23.0, 1, LocalDateTime.now(), organiser, "imageUrl");
-		
+	void testEventRepository_deleteById_deletesEvent(){		
 		Event savedEvent = eventRepo.save(event);
 		assertTrue(eventRepo.findById(savedEvent.getId()).isPresent());
 		eventRepo.deleteById(savedEvent.getId());
@@ -80,16 +71,6 @@ class EventRepositoryTest {
 	
 	@Test
 	void testEventRepository_findAllEvents_returnsAllEvents(){
-		User organiser = new UserBuilder()
-				.email("email@email.com")
-				.password("Password123")
-				.role(Role.ADMIN)
-				.firstName("first")
-				.lastName("last")
-				.build();
-		
-		userRepo.save(organiser);	
-		
 		Event event = new Event("title", "smallDescription", "description", 23.0, 1, LocalDateTime.now(), organiser, "imageUrl");
 		Event savedEvent = eventRepo.save(event);
 		assertTrue(eventRepo.findAll().contains(savedEvent));
@@ -98,16 +79,6 @@ class EventRepositoryTest {
 	
 	@Test
 	void testEventRepository_findById_returnsEvent(){
-		User organiser = new UserBuilder()
-				.email("email@email.com")
-				.password("Password123")
-				.role(Role.ADMIN)
-				.firstName("first")
-				.lastName("last")
-				.build();
-		
-		userRepo.save(organiser);	
-		
 		Event event = new Event("title", "smallDescription", "description", 23.0, 1, LocalDateTime.now(), organiser, "imageUrl");
 		eventRepo.save(event);
 		assertTrue(eventRepo.findById(event.getId()).isPresent());
@@ -115,16 +86,6 @@ class EventRepositoryTest {
 	
 	@Test
 	void testEventRepository_findByOrganiser_returnsAllEventsForOrganiser(){
-		User organiser = new UserBuilder()
-				.email("email@email.com")
-				.password("Password123")
-				.role(Role.ADMIN)
-				.firstName("first")
-				.lastName("last")
-				.build();
-		
-		userRepo.save(organiser);	
-		
 		Event event = new Event("title", "smallDescription", "description", 23.0, 1, LocalDateTime.now(), organiser, "imageUrl");
 		Event event2 = new Event("title2", "smallDescription", "description", 23.0, 1, LocalDateTime.now(), organiser, "imageUrl");
 		eventRepo.save(event);
@@ -136,16 +97,6 @@ class EventRepositoryTest {
 	
 	@Test
 	void testEventRepository_findFirst4ByOrderByDateDesc_returnsOnly4Event(){
-		User organiser = new UserBuilder()
-				.email("email@email.com")
-				.password("Password123")
-				.role(Role.ADMIN)
-				.firstName("first")
-				.lastName("last")
-				.build();
-		
-		userRepo.save(organiser);	
-		
 		Event event1 = new Event("title1", "smallDescription", "description", 23.0, 1, LocalDateTime.now().plusYears(4), organiser, "imageUrl");
 		Event event2 = new Event("title2", "smallDescription", "description", 23.0, 1, LocalDateTime.now().plusYears(4), organiser, "imageUrl");
 		Event event3 = new Event("title3", "smallDescription", "description", 23.0, 1, LocalDateTime.now().plusYears(4), organiser, "imageUrl");
