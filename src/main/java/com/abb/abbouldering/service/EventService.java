@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.abb.abbouldering.dto.EventDto;
@@ -84,7 +83,6 @@ public class EventService {
 
 	public EventDto addUserToEvent(User user, Event event)
 			throws EventDoesNotExistException, UserIsAlreadySignedUpForEventException, EventIsFullyBookedException, InvalidEmailException {
-		
 		if (event.getClimbers().size() >= event.getMaxSize()) {
 			throw new EventIsFullyBookedException();
 		}
@@ -133,7 +131,7 @@ public class EventService {
 		return event;
 	}
 
-	public List<EventDto> getAllEventsWhereUser(User user) {
+	private List<EventDto> getAllEventsWhereUser(User user) {
 		ArrayList<EventDto> eventsDto = new ArrayList<EventDto>();
 		user.getEvents().forEach(event -> eventsDto.add(new EventDto(event)));
 		return eventsDto;
