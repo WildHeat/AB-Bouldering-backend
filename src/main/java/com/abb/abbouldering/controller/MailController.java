@@ -19,7 +19,6 @@ public class MailController {
 	@Autowired
 	MailSenderService mailSenderService;
 	
-	
 	@PostMapping
 	public ResponseEntity<String> contactEmail (@RequestBody ContactFormDto mail) throws InvalidCredentialsException, InvalidEmailException{
 		mailSenderService.sendEmail(mail.getEmail(), mail.getSubject(), mail.getMessage(), mail.getName());
