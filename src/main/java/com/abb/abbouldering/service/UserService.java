@@ -101,7 +101,6 @@ public class UserService {
 		if(!emailPattern.matcher(request.getEmail()).matches()){
 			throw new InvalidCredentialsException("Invalid email");			
 		}
-			
 		UserBuilder userBuilder = new UserBuilder();
 		User user = userBuilder
 				.firstName(request.getFirstName())

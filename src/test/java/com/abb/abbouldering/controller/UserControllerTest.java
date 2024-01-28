@@ -4,6 +4,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 import java.util.ArrayList;
 
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.abb.abbouldering.config.JwtService;
+import com.abb.abbouldering.dto.EditUserDto;
 import com.abb.abbouldering.dto.RegisterRequest;
 import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
@@ -57,6 +59,7 @@ class UserControllerTest {
 				.lastName("last")
 				.role(Role.ADMIN)
 				.build();
+		user.setId(22);
 	}
 	
 	@Test
@@ -84,6 +87,18 @@ class UserControllerTest {
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(register)));
 		response.andExpect(MockMvcResultMatchers.status().isCreated())
+		.andExpect(MockMvcResultMatchers.jsonPath("$.firstName", CoreMatchers.is(user.getFirstName())))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.lastName", CoreMatchers.is(user.getLastName())))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(user.getEmail())));
+	}
+
+	@Test
+	void testUserController_handleEditUser_returnUser() throws Exception {
+		when(mockUserService.editUser(Mockito.any(), Mockito.any())).thenReturn(user);
+		ResultActions response = mockMvc.perform(put("/api/v1/users")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(new EditUserDto())));
+		response.andExpect(MockMvcResultMatchers.status().isOk())
 		.andExpect(MockMvcResultMatchers.jsonPath("$.firstName", CoreMatchers.is(user.getFirstName())))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.lastName", CoreMatchers.is(user.getLastName())))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(user.getEmail())));
