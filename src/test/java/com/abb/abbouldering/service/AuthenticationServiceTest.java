@@ -3,7 +3,6 @@ package com.abb.abbouldering.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
@@ -27,8 +26,6 @@ import com.abb.abbouldering.dto.RegisterRequest;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.repository.UserRepository;
-
-
 
 @ExtendWith(MockitoExtension.class)
 class AuthenticationServiceTest {

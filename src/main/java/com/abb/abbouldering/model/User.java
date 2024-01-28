@@ -23,6 +23,8 @@ import jakarta.validation.constraints.NotBlank;
 @Entity()
 @Table(name = "users")
 public class User implements UserDetails {
+
+	private static final long serialVersionUID = -1038047544055515066L;
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "USER_ID_GEN")
 	@SequenceGenerator(name = "USER_ID_GEN", sequenceName = "user_id_seq", allocationSize = 1, initialValue = 10)

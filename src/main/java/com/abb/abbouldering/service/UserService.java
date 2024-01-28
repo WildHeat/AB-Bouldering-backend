@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.abb.abbouldering.dto.EditUserDto;
 import com.abb.abbouldering.dto.RegisterRequest;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
-import com.abb.abbouldering.exception.UserAlreadyExistsException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;

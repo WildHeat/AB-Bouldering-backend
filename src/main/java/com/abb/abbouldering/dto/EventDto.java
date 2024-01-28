@@ -1,10 +1,7 @@
 package com.abb.abbouldering.dto;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-
 import com.abb.abbouldering.model.Event;
-import com.abb.abbouldering.model.User;
 
 public class EventDto {
 

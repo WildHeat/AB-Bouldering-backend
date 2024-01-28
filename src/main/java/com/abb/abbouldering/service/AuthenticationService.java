@@ -14,7 +14,6 @@ import com.abb.abbouldering.dto.AuthenticationRequest;
 import com.abb.abbouldering.dto.AuthenticationResponse;
 import com.abb.abbouldering.dto.RegisterRequest;
 import com.abb.abbouldering.exception.InvalidCredentialsException;
-import com.abb.abbouldering.exception.UserDoesNotExistException;
 import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.model.UserBuilder;

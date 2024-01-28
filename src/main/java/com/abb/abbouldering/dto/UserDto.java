@@ -1,8 +1,5 @@
 package com.abb.abbouldering.dto;
 
-import java.util.List;
-
-import com.abb.abbouldering.model.Event;
 import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 

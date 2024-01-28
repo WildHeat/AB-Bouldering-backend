@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -41,7 +40,6 @@ class UserServiceTest {
 	private UserService userSerivce;
 	
 	private User user;
-	private User user2;
 	private User admin1;
 	private User admin2;
 	private EditUserDto editUser;
@@ -50,8 +48,6 @@ class UserServiceTest {
 	void init() {
 		user = new UserBuilder().email("test@email.com").password("Password123").firstName("test")
 				.lastName("lastname").build();
-		user2 = new UserBuilder().email("email2@email.com").password("1Password123").role(Role.ADMIN)
-				.firstName("1first").lastName("1last").build();
 		admin1 = new UserBuilder().email("email@email.com").password("Password123").role(Role.ADMIN)
 				.firstName("first").lastName("last").build();
 		admin2 = new UserBuilder().email("email2@email.com").password("Password123").role(Role.ADMIN)
@@ -88,8 +84,9 @@ class UserServiceTest {
 
 	@Test
 	void testUserService_getAllAdminNames_callsUserRepoFindByRole() {
-		User[] admins = { admin1, admin2 };
-		ArrayList<User> adminList = new ArrayList(Arrays.asList(admins));
+		ArrayList<User> adminList = new ArrayList<User>();
+		adminList.add(admin1);
+		adminList.add(admin2);
 
 		when(mockUserRepo.findByRole(Role.ADMIN)).thenReturn(adminList);
 

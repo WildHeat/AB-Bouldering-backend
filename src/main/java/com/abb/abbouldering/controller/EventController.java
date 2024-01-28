@@ -19,12 +19,10 @@ import com.abb.abbouldering.dto.EventDto;
 import com.abb.abbouldering.exception.EventAlreadyExistsException;
 import com.abb.abbouldering.exception.EventDoesNotExistException;
 import com.abb.abbouldering.exception.UserDoesNotExistException;
-import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEventException;
 import com.abb.abbouldering.model.Event;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.service.EventService;
-import com.stripe.exception.StripeException;
-import com.stripe.model.checkout.Session;
+
 
 @RestController
 @RequestMapping("/api/v1/events")

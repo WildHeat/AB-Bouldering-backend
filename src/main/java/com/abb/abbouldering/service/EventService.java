@@ -19,12 +19,6 @@ import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.repository.EventRepository;
 import com.abb.abbouldering.repository.UserRepository;
-import com.stripe.Stripe;
-import com.stripe.exception.StripeException;
-import com.stripe.model.LineItem;
-import com.stripe.model.checkout.Session;
-import com.stripe.param.checkout.SessionCreateParams;
-import com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData;
 
 @Service
 public class EventService {

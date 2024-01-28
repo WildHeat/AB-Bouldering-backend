@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,7 +37,7 @@ public class UserController {
 	}
 	
 	@GetMapping("/get-all-admin")
-	public ResponseEntity<ArrayList<String>> getAllAdminNames(){
+	public ResponseEntity<ArrayList<String>> handleGetAllAdminNames(){
 		return ResponseEntity.status(HttpStatus.OK).body(userService.getAllAdminNames());
 	}
 	
@@ -53,12 +52,12 @@ public class UserController {
 	}
 	
 	@GetMapping("/get-user")
-	public ResponseEntity<UserDto> getUser(@AuthenticationPrincipal User user){
+	public ResponseEntity<UserDto> handleGetUser(@AuthenticationPrincipal User user){
 		return ResponseEntity.status(HttpStatus.OK).body(new UserDto(user));
 	}
 	
 	@PostMapping("/new-admin")
-	public ResponseEntity<UserDto> addNewAdmin(@RequestBody RegisterRequest request) throws InvalidCredentialsException{
+	public ResponseEntity<UserDto> handleAddNewAdmin(@RequestBody RegisterRequest request) throws InvalidCredentialsException{
 		return ResponseEntity.status(HttpStatus.CREATED).body(new UserDto(userService.addNewAdmin(request)));
 	}
 }

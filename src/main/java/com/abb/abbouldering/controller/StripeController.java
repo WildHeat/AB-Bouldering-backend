@@ -20,7 +20,6 @@ import com.abb.abbouldering.exception.UserIsAlreadySignedUpForEventException;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.service.StripeService;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Event;
 
 @RestController
 @RequestMapping("/api/v1/stripe")

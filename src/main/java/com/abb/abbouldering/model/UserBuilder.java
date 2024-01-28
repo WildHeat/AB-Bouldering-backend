@@ -1,9 +1,5 @@
 package com.abb.abbouldering.model;
 
-import java.util.ArrayList;
-
-import org.hibernate.mapping.List;
-
 public class UserBuilder {
 
 	private String firstName;

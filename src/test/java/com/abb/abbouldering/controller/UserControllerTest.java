@@ -3,6 +3,9 @@ package com.abb.abbouldering.controller;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+
+import java.util.ArrayList;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,11 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.abb.abbouldering.config.JwtService;
+import com.abb.abbouldering.dto.RegisterRequest;
 import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.model.UserBuilder;
@@ -50,7 +55,7 @@ class UserControllerTest {
 				.password("Password123")
 				.firstName("first")
 				.lastName("last")
-				.role(Role.USER)
+				.role(Role.ADMIN)
 				.build();
 	}
 	
@@ -71,8 +76,28 @@ class UserControllerTest {
 	}
 
 	@Test
-	void testUserController_getUser_returnUser() throws Exception {
-		ResultActions response = mockMvc.perform(get("/api/v1/users/get-user").header("Authorization", user));
+	void testUserController_addNewAdmin_returnUser() throws Exception {
+		when(mockUserService.addNewAdmin(Mockito.any(RegisterRequest.class))).thenReturn(user);
+		RegisterRequest register = new RegisterRequest(user.getFirstName(),user.getLastName(),user.getEmail(), user.getPassword()); 
+		
+		ResultActions response = mockMvc.perform(post("/api/v1/users/new-admin")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(register)));
+		response.andExpect(MockMvcResultMatchers.status().isCreated())
+		.andExpect(MockMvcResultMatchers.jsonPath("$.firstName", CoreMatchers.is(user.getFirstName())))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.lastName", CoreMatchers.is(user.getLastName())))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.email", CoreMatchers.is(user.getEmail())));
+	}
+	
+	@Test
+	void testUserController_handleGetAllAdminNames_returnOkResponse() throws Exception {
+		ArrayList<String> listOfAdminNames = new ArrayList<String>();
+		listOfAdminNames.add("Admin 1");
+		listOfAdminNames.add("Admin 2");
+		listOfAdminNames.add("Admin 3");
+		
+		ResultActions response = mockMvc.perform(get("/api/v1/users/get-all-admin"));
 		response.andExpect(MockMvcResultMatchers.status().isOk());
 	}
-}
+	
+} 
