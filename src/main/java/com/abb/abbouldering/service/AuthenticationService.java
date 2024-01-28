@@ -22,42 +22,38 @@ import com.abb.abbouldering.repository.UserRepository;
 
 @Service
 public class AuthenticationService {
-	
+
 	@Autowired
 	private UserRepository userRepo;
-	
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	private JwtService jwtService;
-	
-	@Autowired 
+
+	@Autowired
 	private AuthenticationManager authenticationManager;
-	
+
 	private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z]).{8,20}$";
 	private static final Pattern passwordPattern = Pattern.compile(PASSWORD_PATTERN);
-	
+
 	private static final String EMAIL_PATTERN = "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$";
 	private static final Pattern emailPattern = Pattern.compile(EMAIL_PATTERN);
 
 	public AuthenticationResponse register(RegisterRequest request) throws InvalidCredentialsException {
-		if(userRepo.findByEmailIgnoreCase(request.getEmail()).isPresent()) throw new InvalidCredentialsException("Email is already registered");
-		if(!passwordPattern.matcher(request.getPassword()).matches()){
-			throw new InvalidCredentialsException("Invalid password");
-		}
-
-		if(!emailPattern.matcher(request.getEmail()).matches()){
-			throw new InvalidCredentialsException("Invalid email");			
-		}
 		
-		UserBuilder userBuilder = new UserBuilder();
-		User user = userBuilder
-				.firstName(request.getFirstName())
-				.lastName(request.getLastName())
-				.email(request.getEmail())
-				.password(passwordEncoder.encode(request.getPassword()))
-				.role(Role.USER)
+		if (userRepo.findByEmailIgnoreCase(request.getEmail()).isPresent())
+			throw new InvalidCredentialsException("Email is already registered");
+		
+		if (!passwordPattern.matcher(request.getPassword()).matches()) 
+			throw new InvalidCredentialsException("Invalid password");
+		
+		if (!emailPattern.matcher(request.getEmail()).matches()) 
+			throw new InvalidCredentialsException("Invalid email");
+
+		User user = new UserBuilder().firstName(request.getFirstName()).lastName(request.getLastName())
+				.email(request.getEmail()).password(passwordEncoder.encode(request.getPassword())).role(Role.USER)
 				.build();
 		userRepo.save(user);
 		String generatedJwt = jwtService.generateToken(user);
@@ -65,7 +61,8 @@ public class AuthenticationService {
 	}
 
 	public AuthenticationResponse authenticate(AuthenticationRequest request) {
-		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
+		authenticationManager
+				.authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 		User user = userRepo.findByEmailIgnoreCase(request.getUsername())
 				.orElseThrow(() -> new UsernameNotFoundException("User not found"));
 		String generatedJwt = jwtService.generateToken(user);

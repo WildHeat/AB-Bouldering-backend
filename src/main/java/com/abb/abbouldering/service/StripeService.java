@@ -66,7 +66,6 @@ public class StripeService {
 		Stripe.apiKey = stripeSecret;
 
 		SessionCreateParams params = SessionCreateParams.builder()
-//				.setCancelUrl("https://facebook.com")
 				.setSuccessUrl("https://google.com")
 				.addLineItem(SessionCreateParams.LineItem.builder().setPriceData(PriceData.builder().setCurrency("gbp")
 						.setUnitAmount(Math.round(event.getPrice() * 100))

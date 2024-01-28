@@ -43,7 +43,7 @@ public class UserController {
 	}
 	
 	@GetMapping("/{id}")
-	public ResponseEntity<UserDto> handleGetUser(@PathVariable long id) throws UserDoesNotExistException{
+	public ResponseEntity<UserDto> handleGetUserById(@PathVariable long id) throws UserDoesNotExistException{
 		return ResponseEntity.status(HttpStatus.OK).body(new UserDto(userService.getUserById(id)));
 	}
 
