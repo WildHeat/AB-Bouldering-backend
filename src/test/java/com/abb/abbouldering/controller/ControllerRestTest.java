@@ -1,8 +1,10 @@
 package com.abb.abbouldering.controller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDateTime;
 
@@ -14,8 +16,14 @@ import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
@@ -44,12 +52,6 @@ class ControllerRestTest {
 	private UserRepository userRepo;
 
 	@Autowired
-	private UserService userService;
-
-	@Autowired
-	private AuthenticationService authService;
-
-	@Autowired
 	private EventRepository eventRepo;
 
 	private RestTemplate rest;
@@ -62,7 +64,6 @@ class ControllerRestTest {
 	private Event event4;
 	private Event event5;
 
-	private EventDto eventDto;
 	private User admin1;
 	private User admin2;
 	private User user;
@@ -83,7 +84,7 @@ class ControllerRestTest {
 				.password("$2a$10$BYbj9L2j6o.jGIEKDrPNQOBkwOWBWGnEPMV0bQw7bGSY0g40TyEpK").build();
 		user = new UserBuilder().email("newUser@asdf.com").firstName("admin1").lastName("last").role(Role.USER)
 				.password("$2a$10$BYbj9L2j6o.jGIEKDrPNQOBkwOWBWGnEPMV0bQw7bGSY0g40TyEpK").build();
-		
+
 		userRepo.save(admin1);
 		userRepo.save(admin2);
 		userRepo.save(user);
@@ -105,7 +106,6 @@ class ControllerRestTest {
 		eventRepo.save(event4);
 		eventRepo.save(event5);
 
-		eventDto = new EventDto(this.event1);
 		userDto = new UserDto(user);
 	}
 
@@ -205,7 +205,7 @@ class ControllerRestTest {
 		try {
 			rest.postForObject(baseUrl + "/api/v1/auth/authenticate", request, AuthenticationResponse.class);
 		} catch (Exception e) {
-			assertEquals("403 : [no body]", e.getMessage());			
+			assertEquals("403 : [no body]", e.getMessage());
 			return;
 		}
 		fail("Invalid credentials was accepted");
@@ -217,12 +217,19 @@ class ControllerRestTest {
 		try {
 			rest.postForObject(baseUrl + "/api/v1/auth/authenticate", request, AuthenticationResponse.class);
 		} catch (Exception e) {
-			assertEquals("403 : [no body]", e.getMessage());			
+			assertEquals("403 : [no body]", e.getMessage());
 			return;
 		}
 		fail("Invalid credentials was accepted");
 	}
-	
+	/////////////////////////////////
+	///////////////////////////////
+
+	// Events
+
+	/////////////////////////////////
+	////////////////////////////
+
 	@Test
 	void testEventController_handleGetAllEvents_returnsEventsArray() {
 		EventDto[] events = rest.getForObject(baseUrl + "/api/v1/events/all", EventDto[].class);
@@ -252,12 +259,135 @@ class ControllerRestTest {
 		assertEquals(4, events.length);
 	}
 
-//	@Test
-//	void testEventController_handleDeleteEventById_returnsOkStatus() {
-//		 need to have the JWT in the header....NICE!!
-//		ResponseEntity<String> response = rest.postForEntity(baseUrl + "/api/v1/auth/register", request, String.class);			
-//		ResponseEntity response = rest.exchange(baseUrl + "/api/v1/events/2", HttpMethod.DELETE, null, void.class);
-//		assertTrue(response.getStatusCode().is2xxSuccessful());
-//	}
+	@Test
+	void testEventController_handleAddEvent_returns201Response() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(admin1.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+
+		EventDto eventDto = new EventDto(event1);
+		eventDto.setId(0l);
+		eventDto.setTitle("Test New Event");
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+
+		HttpEntity<?> request = new HttpEntity<>(eventDto, headers);
+		ResponseEntity<EventDto> response = rest.exchange(baseUrl + "/api/v1/events", HttpMethod.POST, request,
+				EventDto.class);
+
+		assertEquals(eventDto.getTitle(), response.getBody().getTitle());
+		assertEquals(HttpStatus.CREATED, response.getStatusCode());
+	}
+
+	@Test
+	void testEventController_handleAddEvent_nonAdminReturns403() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(user.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+
+		EventDto eventDto = new EventDto(event1);
+		eventDto.setTitle("Test New Event");
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+
+		HttpEntity<?> request = new HttpEntity<>(eventDto, headers);
+		try {
+			rest.exchange(baseUrl + "/api/v1/events", HttpMethod.POST, request, EventDto.class);
+		} catch (Exception e) {
+			assertEquals("403 : [no body]", e.getMessage());
+		}
+	}
+
+	@Test
+	void testEventController_handleDeleteEventById_adminReturns200Response() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(admin1.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+
+		assertFalse(eventRepo.findById(event1.getId()).isEmpty());
+
+		rest.exchange(baseUrl + "/api/v1/events/" + event1.getId(), HttpMethod.DELETE, request, void.class);
+
+		assertTrue(eventRepo.findById(event1.getId()).isEmpty());
+	}
+
+	@Test
+	void testEventController_handleDeleteEventById_invalidIdReturns404Response() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(admin1.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+
+		long fakeId = 1111l;
+
+		assertTrue(eventRepo.findById(fakeId).isEmpty());
+
+		try {
+			rest.exchange(baseUrl + "/api/v1/events/" + fakeId, HttpMethod.DELETE, request, void.class);
+		} catch (Exception e) {
+			assertEquals("404 : \"Event doesn't exist\"", e.getMessage());
+			return;
+		}
+		fail("Should have thrown an exception");
+	}
+
+	@Test
+	void testEventController_handleDeleteEventById_nonAdminReturns403Response() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(user.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+
+		try {
+			rest.exchange(baseUrl + "/api/v1/events/" + event1.getId(), HttpMethod.DELETE, request, void.class);
+		} catch (Exception e) {
+			assertEquals("403 : [no body]", e.getMessage());
+			return;
+		}
+		fail();
+	}
+
+	@Test
+	void testEventController_handleEditEvent_returns201Response() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(admin1.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+
+		String newTitle = "Test new title";
+		String newDescription = "test new description";
+		
+		EventDto eventDto = new EventDto(event1);
+		eventDto.setTitle(newTitle);
+		eventDto.setDescription(newDescription);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+
+		HttpEntity<?> request = new HttpEntity<>(eventDto, headers);
+		rest.exchange(baseUrl + "/api/v1/events", HttpMethod.PUT, request, EventDto.class);
+		
+		Event editedEvent = eventRepo.findById(event1.getId()).get();
+		
+		assertEquals(newTitle, editedEvent.getTitle());		
+		assertEquals(newDescription, editedEvent.getDescription());		
+	}
 
 }
