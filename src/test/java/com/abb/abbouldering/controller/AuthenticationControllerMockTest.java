@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebMvcTest(controllers = AuthenticationController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
-class AuthenticationControllerTest {
+class AuthenticationControllerMockTest {
 	
 	@Autowired
 	private MockMvc mockMvc;

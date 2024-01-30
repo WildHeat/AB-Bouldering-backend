@@ -1,9 +1,13 @@
 package com.abb.abbouldering.controller;
 
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,15 +19,15 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.abb.abbouldering.config.JwtService;
-import com.abb.abbouldering.dto.ContactFormDto;
-import com.abb.abbouldering.service.MailSenderService;
+import com.abb.abbouldering.model.User;
+import com.abb.abbouldering.service.StripeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@WebMvcTest(controllers = MailController.class)
+@WebMvcTest(controllers = StripeController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
-class MailControllerTest {
-
+class StripeControllerMockTest {
+	
 	@Autowired
 	private MockMvc mockMvc;
 
@@ -34,14 +38,25 @@ class MailControllerTest {
 	private JwtService jwtService;
 	
 	@MockBean
-	private MailSenderService mockMailService;
+	private StripeService mockStripeService;
 
+	@BeforeEach
+	void init() throws Exception {
+	}
 
 	@Test
-	void testMailController_contactEmail_returnsOkResponse() throws Exception {
-		ContactFormDto contactForm = new ContactFormDto("email", "subject", "message", "name");
-		ResultActions response = mockMvc.perform(post("/api/v1/mail").contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(contactForm)));
+	void testStripeController_handleNewEventNotification_returnsOkResponse() throws Exception {
+		ResultActions response = mockMvc.perform(post("/api/v1/stripe/event")
+				.header("Stripe-Signature", "signature")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString("event")));
+		response.andExpect(MockMvcResultMatchers.status().isOk());
+	}
+	
+	@Test
+	void testStripeController_addUserToEvent_returnsOkResponse() throws Exception {
+		when(mockStripeService.handleCreateCheckoutSession(Mockito.any(User.class), Mockito.anyLong())).thenReturn("url");
+		ResultActions response = mockMvc.perform(get("/api/v1/stripe/all/2"));
 		response.andExpect(MockMvcResultMatchers.status().isOk());
 	}
 

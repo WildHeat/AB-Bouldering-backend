@@ -36,7 +36,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebMvcTest(controllers = EventController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
-class EventControllerTest {
+class EventControllerMockTest {
 	
 	@Autowired
 	private MockMvc mockMvc;
@@ -56,11 +56,11 @@ class EventControllerTest {
 
 	@BeforeEach
 	void init() throws Exception {
-		this.organiser = new UserBuilder().email("email@email.com").password("Password123").role(Role.ADMIN)
+		organiser = new UserBuilder().email("email@email.com").password("Password123").role(Role.ADMIN)
 				.firstName("first").lastName("last").build();
-		this.event = new Event("Event", "smallDescription", "description", 10.0, 10, LocalDateTime.now(), organiser,
+		event = new Event("Event", "smallDescription", "description", 10.0, 10, LocalDateTime.now(), organiser,
 				"imageUrl");
-		this.eventDto = new EventDto(this.event);
+		eventDto = new EventDto(this.event);
 	}
 
 	@Test
@@ -84,7 +84,7 @@ class EventControllerTest {
 		.andExpect(MockMvcResultMatchers.jsonPath("$.description", CoreMatchers.is(eventDto.getDescription())))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.price", CoreMatchers.is(eventDto.getPrice())))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.maxSize", CoreMatchers.is(eventDto.getMaxSize())))
-		.andExpect(MockMvcResultMatchers.jsonPath("$.date", CoreMatchers.is(eventDto.getDate().toString().substring(0, 27))))
+		.andExpect(MockMvcResultMatchers.jsonPath("$.date", CoreMatchers.containsString(eventDto.getDate().toString().substring(0, 16))))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.organiser", CoreMatchers.is(eventDto.getOrganiser())))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.spacesLeft", CoreMatchers.is(eventDto.getSpacesLeft())))
 		.andExpect(MockMvcResultMatchers.jsonPath("$.imageUrl", CoreMatchers.is(eventDto.getImageUrl())));

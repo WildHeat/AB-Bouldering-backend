@@ -35,7 +35,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @WebMvcTest(controllers = UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @ExtendWith(MockitoExtension.class)
-class UserControllerTest {
+class UserControllerMockTest {
 	
 	@Autowired
 	private MockMvc mockMvc;

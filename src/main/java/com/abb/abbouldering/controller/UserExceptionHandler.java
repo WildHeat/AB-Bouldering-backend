@@ -25,7 +25,7 @@ public class UserExceptionHandler {
 
 	@ExceptionHandler(value = InvalidCredentialsException.class)
 	public ResponseEntity<String> handleInvalidCredentialsException(InvalidCredentialsException e) {
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+		return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(e.getMessage());
 	}
 
 	@ExceptionHandler(value = UsernameNotFoundException.class)
