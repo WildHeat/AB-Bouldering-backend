@@ -3,10 +3,12 @@ package com.abb.abbouldering.controller;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 
 import com.abb.abbouldering.dto.AuthenticationRequest;
 import com.abb.abbouldering.dto.AuthenticationResponse;
+import com.abb.abbouldering.dto.EditUserDto;
 import com.abb.abbouldering.dto.EventDto;
 import com.abb.abbouldering.dto.RegisterRequest;
 import com.abb.abbouldering.dto.UserDto;
@@ -37,6 +40,7 @@ import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.model.UserBuilder;
 import com.abb.abbouldering.repository.EventRepository;
+import com.abb.abbouldering.repository.SessionWithUserRepository;
 import com.abb.abbouldering.repository.UserRepository;
 import com.abb.abbouldering.service.AuthenticationService;
 import com.abb.abbouldering.service.UserService;
@@ -54,6 +58,9 @@ class ControllerRestTest {
 	@Autowired
 	private EventRepository eventRepo;
 
+	@Autowired
+	private SessionWithUserRepository sessionRepo;
+	
 	private RestTemplate rest;
 
 	private String baseUrl;
@@ -75,6 +82,7 @@ class ControllerRestTest {
 		baseUrl = "http://localhost:" + webServerAppCtxt.getWebServer().getPort();
 		rest = new RestTemplate();
 
+		sessionRepo.deleteAll();
 		eventRepo.deleteAll();
 		userRepo.deleteAll();
 
@@ -95,7 +103,7 @@ class ControllerRestTest {
 				"imageUrl2");
 		event3 = new Event("Event3", "smallDescription3", "description3", 10.0, 10, LocalDateTime.now(), admin2,
 				"imageUrl3");
-		event4 = new Event("Event4", "smallDescription4", "description4", 21.0, 10, LocalDateTime.now(), admin2,
+		event4 = new Event("Event4", "smallDescription4", "description4", 0.0, 10, LocalDateTime.now(), admin2,
 				"imageUrl4");
 		event5 = new Event("Event5", "smallDescription5", "description5", 30.0, 10, LocalDateTime.now(), admin1,
 				"imageUrl5");
@@ -105,6 +113,10 @@ class ControllerRestTest {
 		eventRepo.save(event3);
 		eventRepo.save(event4);
 		eventRepo.save(event5);
+		
+		event1.addUserToEvent(user);
+		eventRepo.save(event1);
+		
 
 		userDto = new UserDto(user);
 	}
@@ -264,14 +276,14 @@ class ControllerRestTest {
 		AuthenticationRequest loginRequest = new AuthenticationRequest(admin1.getEmail(), "Password123");
 		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
 				AuthenticationResponse.class);
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
 
 		EventDto eventDto = new EventDto(event1);
 		eventDto.setId(0l);
 		eventDto.setTitle("Test New Event");
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set("Authorization", "Bearer " + loginResponse.getToken());
 
 		HttpEntity<?> request = new HttpEntity<>(eventDto, headers);
 		ResponseEntity<EventDto> response = rest.exchange(baseUrl + "/api/v1/events", HttpMethod.POST, request,
@@ -370,16 +382,16 @@ class ControllerRestTest {
 		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
 				AuthenticationResponse.class);
 
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+
 		String newTitle = "Test new title";
 		String newDescription = "test new description";
 		
 		EventDto eventDto = new EventDto(event1);
 		eventDto.setTitle(newTitle);
 		eventDto.setDescription(newDescription);
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.set("Authorization", "Bearer " + loginResponse.getToken());
 
 		HttpEntity<?> request = new HttpEntity<>(eventDto, headers);
 		rest.exchange(baseUrl + "/api/v1/events", HttpMethod.PUT, request, EventDto.class);
@@ -389,5 +401,191 @@ class ControllerRestTest {
 		assertEquals(newTitle, editedEvent.getTitle());		
 		assertEquals(newDescription, editedEvent.getDescription());		
 	}
+	
+	@Test
+	void testEventController_handleGetMyEvents_adminReturnsEventsTheyAreOrganising() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(admin1.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
 
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+
+		ResponseEntity<EventDto[]> response = rest.exchange(baseUrl + "/api/v1/events/user/get-my-events", HttpMethod.GET, request, EventDto[].class);
+		assertEquals(3, response.getBody().length);
+	}
+
+	@Test
+	void testEventController_handleGetMyEvents_userReturnsTheirBookedEvents() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(user.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+		
+		ResponseEntity<EventDto[]> response = rest.exchange(baseUrl + "/api/v1/events/user/get-my-events", HttpMethod.GET, request, EventDto[].class);
+		assertEquals(1, response.getBody().length);
+	}
+	
+	//////////////////////
+	/////////////////
+	// User
+	/////////////////
+	//////////////////////
+	
+	@Test
+	void testUserController_handleGetUser_returnsUserDtoAnd200Response() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(admin1.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+		
+		ResponseEntity<UserDto> response = rest.exchange(baseUrl + "/api/v1/users/get-user", HttpMethod.GET, request, UserDto.class);
+		UserDto retrievedUser = response.getBody();
+		assertEquals(admin1.getId(), retrievedUser.getId());
+		assertEquals(admin1.getEmail(), retrievedUser.getEmail());
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+	}
+
+	@Test
+	void testUserController_handleGetAllAdminNames_returnsListAnd200Response() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(admin1.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+		
+		ResponseEntity<String[]> response = rest.exchange(baseUrl + "/api/v1/users/get-all-admin", HttpMethod.GET, request, String[].class);
+		String[] adminNames = response.getBody();
+		
+		assertEquals(2, adminNames.length);
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+	}
+
+	@Test
+	void testUserController_handleEditUser_returns200Response() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(admin1.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		
+		EditUserDto editUserDto = new EditUserDto(admin1.getId(), "editedFirst", "editedLast", admin1.getEmail(), "Password1234", "Password123");
+		
+		HttpEntity<?> request = new HttpEntity<>(editUserDto, headers);
+		
+		ResponseEntity<UserDto> response = rest.exchange(baseUrl + "/api/v1/users", HttpMethod.PUT, request, UserDto.class);
+		UserDto editedUser = response.getBody();
+		
+		assertEquals(admin1.getId(), editedUser.getId());
+		assertEquals("editedFirst", editedUser.getFirstName());
+		assertEquals("editedLast", editedUser.getLastName());
+		assertEquals(admin1.getEmail(), editedUser.getEmail());
+	}
+	
+	@Test
+	void testUserController_handleUserById_returnsUserAnd200Response() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(admin1.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+		
+		ResponseEntity<UserDto> response = rest.exchange(baseUrl + "/api/v1/users/" + user.getId(), HttpMethod.GET, request, UserDto.class);
+		UserDto retrievedUser = response.getBody();
+		
+		assertEquals(user.getId(), retrievedUser.getId());
+		assertEquals(user.getEmail(), retrievedUser.getEmail());
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+	}
+
+	@Test
+	void testUserController_handleDeleteUserById_returnsUserAnd200Response() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(admin1.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+		
+		ResponseEntity<Void> response = rest.exchange(baseUrl + "/api/v1/users/" + user.getId(), HttpMethod.DELETE, request, void.class);
+		
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+	}
+	
+	///////////////////
+	////////////////
+	//Stripe
+	////////////////
+	/////////////////
+	
+	@Test
+	void testStripeController_addUserToEvent_returnUrlAnd200Response() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(user.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+		
+		ResponseEntity<String> response = rest.exchange(baseUrl + "/api/v1/stripe/all/" + event3.getId(), HttpMethod.GET, request, String.class);
+		
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertNotEquals(null, response.getBody());
+	}
+	
+	@Test
+	void testStripeController_addUserToEvent_return200ResponseAndAddsUserToEvent() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(user.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+		
+		ResponseEntity<String> response = rest.exchange(baseUrl + "/api/v1/stripe/all/" + event4.getId(), HttpMethod.GET, request, String.class);
+	
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		assertEquals(null, response.getBody());
+	}
+
+	@Test
+	void testEventControllerStripeController_deleteEventById_return200ResponseEvenWithSessionWithUserEntity() {
+		AuthenticationRequest loginRequest = new AuthenticationRequest(admin1.getEmail(), "Password123");
+		AuthenticationResponse loginResponse = rest.postForObject(baseUrl + "/api/v1/auth/authenticate", loginRequest,
+				AuthenticationResponse.class);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set("Authorization", "Bearer " + loginResponse.getToken());
+		HttpEntity<?> request = new HttpEntity<>(headers);
+		
+		ResponseEntity<String> response = rest.exchange(baseUrl + "/api/v1/stripe/all/" + event2.getId(), HttpMethod.GET, request, String.class);
+	
+		assertEquals(HttpStatus.OK, response.getStatusCode());
+		
+		rest.exchange(baseUrl + "/api/v1/events/" + event2.getId(), HttpMethod.DELETE, request, void.class);
+
+		assertTrue(eventRepo.findById(event2.getId()).isEmpty());
+		
+		
+	}
+
+		
 }

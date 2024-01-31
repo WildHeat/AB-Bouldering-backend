@@ -31,6 +31,7 @@ import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.model.UserBuilder;
 import com.abb.abbouldering.repository.EventRepository;
+import com.abb.abbouldering.repository.SessionWithUserRepository;
 import com.abb.abbouldering.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +43,8 @@ class EventServiceTest {
 	private EventRepository mockEventRepo;
 	@Mock
 	private UserRepository mockUserRepo;
+	@Mock
+	private SessionWithUserRepository mockSessionRepo;
 	@InjectMocks
 	private EventService eventService;
 
@@ -89,14 +92,14 @@ class EventServiceTest {
 
 	@Test
 	void testEventService_deleteEventBy_runsEventRepoDeleteById() throws EventDoesNotExistException {
-		when(mockEventRepo.existsById(Mockito.anyLong())).thenReturn(true);
+		when(mockEventRepo.findById(Mockito.anyLong())).thenReturn(Optional.of(event));
 		eventService.deleteEventById(1l);
 		verify(mockEventRepo).deleteById(1l);
 	}
 
 	@Test
 	void testEventService_deleteEventBy_invalidEventThrowsEventDoesNotExistException() {
-		when(mockEventRepo.existsById(Mockito.anyLong())).thenReturn(false);
+		when(mockEventRepo.findById(Mockito.anyLong())).thenReturn(Optional.empty());
 		assertThrows(EventDoesNotExistException.class, () -> eventService.deleteEventById(1l));
 	}
 

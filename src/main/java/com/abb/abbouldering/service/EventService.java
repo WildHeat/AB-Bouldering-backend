@@ -18,6 +18,7 @@ import com.abb.abbouldering.model.Event;
 import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.repository.EventRepository;
+import com.abb.abbouldering.repository.SessionWithUserRepository;
 import com.abb.abbouldering.repository.UserRepository;
 
 @Service
@@ -28,6 +29,9 @@ public class EventService {
 
 	@Autowired
 	private UserRepository userRepo;
+	
+	@Autowired
+	private SessionWithUserRepository sessionRepo;
 
 	@Autowired
 	private MailSenderService mailService;
@@ -42,9 +46,10 @@ public class EventService {
 	}
 
 	public void deleteEventById(long id) throws EventDoesNotExistException {
-		if (!eventRepo.existsById(id))
+		Optional<Event> optionalEvent = eventRepo.findById(id);
+		if (optionalEvent.isEmpty())
 			throw new EventDoesNotExistException();
-
+		sessionRepo.deleteAll(sessionRepo.findByEvent(optionalEvent.get()));
 		eventRepo.deleteById(id);
 	}
 
