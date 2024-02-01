@@ -1,4 +1,6 @@
-/src/main/resources/application.properties
+### All .properties files will be ignored
+*.properties
+
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar

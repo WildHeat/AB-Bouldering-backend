@@ -47,6 +47,6 @@ public class MailSenderService {
 		message.setTo(receiver.getEmail());
 		message.setSubject("Booking Confirmation: " + event.getTitle());
 		message.setText("\nThank you for booking the event: " + event.getTitle() + "\n\nIt will be at "+ event.getDate() + "\n\nThank you.");
-		mailSender.send(message);
+		mailSender.send(message); 
 	}
 }	
