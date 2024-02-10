@@ -1,9 +1,5 @@
 package com.abb.abbouldering.repository;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +12,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import com.abb.abbouldering.model.Role;
 import com.abb.abbouldering.model.User;
 import com.abb.abbouldering.model.UserBuilder;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(connection = EmbeddedDatabaseConnection.H2)
@@ -38,7 +36,7 @@ class UserRepositoryTest {
 	@Test
 	public void testUserRepository_Save_returnsSavedUser() {
 		User savedUser = userRepo.save(user);
-		assertTrue(savedUser.equals(user));
+        assertEquals(savedUser, user);
 	}
 
 	@Test
@@ -75,7 +73,7 @@ class UserRepositoryTest {
 		savedUser.setEmail("changingEmail@email.com");
 		User updatedUser = userRepo.save(user);
 
-		assertFalse(updatedUser.getEmail().equals(originalEmail));
+        assertNotEquals(updatedUser.getEmail(), originalEmail);
 	}
 
 }
