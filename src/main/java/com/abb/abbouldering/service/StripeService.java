@@ -63,7 +63,8 @@ public class StripeService {
 		Stripe.apiKey = stripeSecret;
 
 		SessionCreateParams params = SessionCreateParams.builder()
-				.setSuccessUrl("https://google.com")
+				.setSuccessUrl("https://abboulder.com/booking-completed")
+				.setCancelUrl("https://abboulder.com/events/" + eventId)
 				.addLineItem(SessionCreateParams.LineItem.builder().setPriceData(PriceData.builder().setCurrency("gbp")
 						.setUnitAmount(Math.round(event.getPrice() * 100))
 						.setProductData(com.stripe.param.checkout.SessionCreateParams.LineItem.PriceData.ProductData
@@ -78,7 +79,7 @@ public class StripeService {
 	public void handleStripeEvent(String requestBody, String stripeSig)
 			throws InvalidCredentialsException, EventDoesNotExistException, UserIsAlreadySignedUpForEventException,
 			EventIsFullyBookedException, InvalidEmailException {
-		String endpointSecret = "whsec_7df678820f055122c87505e616d0aafe2c79b0a6d1cbcbfa2c797d74ef320c7e";
+		String endpointSecret = "whsec_Ci4rSOKfqi1cpxvDdPPEWJD2jkXzmDAY";
 		com.stripe.model.Event event = null;
 
 		try {
